@@ -10,9 +10,10 @@
 
 class CLINIC_Clients extends CLINIC_Users {
 
-	function __construct() {
+	function set_role() {
 
-	
+		$this -> role = 'client';
+
 	}
 
 }
