@@ -14,9 +14,29 @@ register_deactivation_hook( CLINIC_FILE, array( 'CLINIC_Register', 'client' ) );
 register_activation_hook( CLINIC_FILE, array( 'CLINIC_Register', 'provider' ) );
 register_deactivation_hook( CLINIC_FILE, array( 'CLINIC_Register', 'provider' ) );
 
+function clinic_roles_init() {
+	new CLINIC_Roles;
+}
+add_action( 'plugins_loaded', 'clinic_roles_init' );
+
 class CLINIC_Roles {
 
-	function __construct() {}
+	function __construct() {
+
+		add_filter( 'editable_roles', array( $this, 'editable_roles' ) );
+
+	}
+
+	function editable_roles( $roles ) {
+
+		unset( $roles['subscriber'] );
+		unset( $roles['contributor'] );
+		unset( $roles['author'] );
+		unset( $roles['editor'] );
+
+		return $roles;
+
+	}
 
 	static function client() {
 

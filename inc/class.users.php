@@ -8,11 +8,19 @@
  * @since Clinic 0.1
  */
 
-class CLINIC_Clients extends CLINIC_Posts {
+abstract class CLINIC_Users {
 
 	function __construct() {
 
 	
 	}
+
+	function get() {
+		return 'hello';
+	}
+
+	function get_as_kv() {
+		return 'hello';
+	}	
 
 }

@@ -8,7 +8,7 @@
  * @since Clinic 0.1
  */
 
-class CLINIC_Providers extends CLINIC_Posts {
+class CLINIC_Clients extends CLINIC_Users {
 
 	function __construct() {
 
