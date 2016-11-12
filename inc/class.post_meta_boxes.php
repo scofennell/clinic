@@ -142,8 +142,9 @@ class CLINIC_Post_Meta_Boxes {
 			),
 
 			'time_window' => array(
-				'label' => esc_html__( 'Session Timeline', 'clinic' ),
-				'type'  => wp_die( https://developer.wordpress.org/reference/functions/touch_time/ )
+				'label'           => esc_html__( 'Session Timeline', 'clinic' ),
+				'type'            => 'timeline',
+				'sanitization_cb' => 'sanitize_text_field',
 			),
 
 		);
@@ -217,6 +218,17 @@ class CLINIC_Post_Meta_Boxes {
 			$out = "
 				<h4 class='$class-label'>$label</h4>
 				$inputs
+			";
+
+		} elseif( $type == 'timeline' ) {
+
+			$ob = ob_start();
+			touch_time( FALSE, FALSE, FALSE, TRUE );
+			$input = ob_get_clean();
+
+			$out = "
+				<h4 class='$class-label' for='$id'>$label</h4>
+				$input
 			";
 
 		} else {
