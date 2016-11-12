@@ -66,32 +66,52 @@ class CLINIC_Post_Meta_Boxes {
 
 		if( ! wp_verify_nonce( $_POST[ $meta_box_slug ], $meta_box_slug ) ) { return $post_id; }
 	
-		wp_die(
-			var_dump(
-				array(
-					$post_id,
-					$meta_box_slug,
-					$inputs,
-					$_POST,
-				)
-			)
-		);
-
 		if( ! current_user_can( 'edit_post', $post_id ) ) { return $post_id; }
+		
+		if ( is_multisite() ) {
+			if( ms_is_switched() ) { return $post_id; }
+		} 
+
 		if( defined( 'DOING_AUTOSAVE' ) ) {
-			if( DOING_AUTOSAVE ) {
-				return $post_id;
-			}
+			if( DOING_AUTOSAVE ) { return $post_id; }
 		}
+
+		$get_post_custom = get_post_custom( $post_id );
 
 		foreach( $inputs as $input_slug => $input ) {
 
-		}
+			$old_value = $get_post_custom[ $input_slug ]
 
-		if( isset( $_POST['hello'] ) ) {
-		    update_post_meta( $post_id, 'hello', sanitize_text_field( $_POST['hello'] ) );
-		} else {
-			delete_post_meta( $post_id, 'hello' );
+			if( ! isset( $_POST[ $input_slug ] ) ) {
+				delete_post_meta( $post_id, $input_slug );
+				continue;
+			}
+
+			$new_value = call_user_func( $input['sanitizatin_cb'], $_POST[ $input_slug ] );
+
+			if( $old_value === $new_value ) { continue; }
+
+			if( empty( $new_value ) ) {
+				delete_post_meta( $post_id, $input_slug );
+				continue;
+			}
+
+			update_post_meta($post_id, $input_slug, $new_value );
+			
+			wp_die(
+				var_dump(
+					array(
+						$post_id,
+						$meta_box_slug,
+						$new_value,
+						$old_value,
+						$get_post_custom,
+						$inputs,
+						$_POST,
+					)
+				)
+			);
+
 		}
 
 	}
