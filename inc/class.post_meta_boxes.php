@@ -222,10 +222,21 @@ class CLINIC_Post_Meta_Boxes {
 
 		} elseif( $type == 'timeline' ) {
 
-			$ob = ob_start();
-			touch_time( FALSE, FALSE, FALSE, TRUE );
-			$input = ob_get_clean();
+			if( ! is_array( $value ) ) { $value = array( 0, 0 ); }
 
+			$times = array(
+				'start' => array(
+					'label' => esc_html__( 'Start:', 'clinic' ),
+					'value' => $value[0],
+				),
+				'end' => array(
+					'label' => esc_html__( 'End:', 'clinic' ),
+					'value' => $value[1],
+				),			
+			);
+
+			$input = $this -> touch_time( $times );
+			
 			$out = "
 				<h4 class='$class-label' for='$id'>$label</h4>
 				$input
@@ -257,6 +268,104 @@ class CLINIC_Post_Meta_Boxes {
 	}
 
 	function testimonial() {
+
+
+	}
+
+	function touch_time( $times ) {
+
+		$out = '';
+
+		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
+
+		global $wp_locale;
+
+		$current_time = current_time( 'timestamp' );
+	
+		$minute_label = esc_html__( 'Minute', 'clinic' );			
+		$hour_label   = esc_html__( 'Hour', 'clinic' );
+		$day_label    = esc_html__( 'Day', 'clinic' );
+		$month_label  = esc_html__( 'Month', 'clinic' );
+		$year_label   = esc_html__( 'Year', 'clinic' );
+
+		foreach( $times as $time_slug => $time ) {
+
+			$label = esc_html( $time['label'] );
+			$value = absint( $time['value'] );
+
+			if( empty( $value ) ) { $value = $current_time; }
+
+			$jj = date( 'd', $value );
+			$mm = date( 'm', $value );
+			$aa = date( 'Y', $value );
+			$hh = date( 'H', $value );
+			$mn = date( 'i', $value );
+			$ss = date( 's', $value );
+
+			$month = "<label><span class='screen-reader-text'>$month_label</span><select id='mm' name='mm'>";
+			
+			for ( $i = 1; $i < 13; $i = $i +1 ) {
+				$monthnum = zeroise($i, 2);
+				$monthtext = $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) );
+				$selected = selected( $monthnum, $mm, false );
+				$month .= "<option value='$monthnum' data-text='$monthtext' $selected>";
+			
+				/* translators: 1: month number (01, 02, etc.), 2: month abbreviation */
+				$month .= sprintf( __( '%1$s-%2$s' ), $monthnum, $monthtext ) . "</option>";
+			}
+			
+			$month .= '</select></label>';
+
+			$day = "
+				<label>
+					<span class='screen-reader-text'>$day_label</span>
+					<input type='number' id='jj' name='jj' value='$jj' size='2' maxlength='2' autocomplete='off'>
+				</label>
+			";
+		
+			$year = "
+				<label>
+					<span class='screen-reader-text'>$year_label</span>
+					<input type='number'  id='aa' name='aa' value='$aa' size='4' maxlength='4' autocomplete='off'>
+				</label>
+			";
+
+			$hour = "
+				<label>
+					<span class='screen-reader-text'>$hour_label</span>
+					<input type='number' id='hh' name='hh' value='$hh' size='2' maxlength='2' autocomplete='off'>
+				</label>
+			";
+
+			$minute = "
+				<label>
+					<span class='screen-reader-text'>$minute_label</span>
+					<input type='number' id='mn' name='mn' value='$mn' size='2' maxlength='2' autocomplete='off'>
+				</label>
+			";
+
+			/* 1: month, 2: day, 3: year, 4: hour, 5: minute */
+			$time = sprintf( __( '%1$s %2$s, %3$s @ %4$s:%5$s' ), $month, $day, $year, $hour, $minute );
+
+			$hidden_value = '';
+
+			$out .= "
+				<div class='$class-control'>
+					<label>$label</label>
+					$time
+					<input type='number' value='$hidden_value' name='$time_slug'>
+				</div>
+			";
+
+		}
+
+		$out = "
+			<div class='$class'>
+				$out
+			</div>
+		";
+
+		return $out;
 
 
 	}
