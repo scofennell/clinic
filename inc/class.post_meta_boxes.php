@@ -80,14 +80,18 @@ class CLINIC_Post_Meta_Boxes {
 
 		foreach( $inputs as $input_slug => $input ) {
 
-			$old_value = $get_post_custom[ $input_slug ]
+			$old_value = $get_post_custom[ $input_slug ];
 
 			if( ! isset( $_POST[ $input_slug ] ) ) {
 				delete_post_meta( $post_id, $input_slug );
 				continue;
 			}
 
-			$new_value = call_user_func( $input['sanitizatin_cb'], $_POST[ $input_slug ] );
+			if( is_scalar( $_POST[ $input_slug ] ) ) {
+				$new_value = call_user_func( $input['sanitization_cb'], $_POST[ $input_slug ] );
+			} elseif( is_array( $_POST[ $input_slug ] ) ) {
+				$new_value = array_map( $input['sanitization_cb'], $_POST[ $input_slug ] );
+			}
 
 			if( $old_value === $new_value ) { continue; }
 
@@ -96,9 +100,7 @@ class CLINIC_Post_Meta_Boxes {
 				continue;
 			}
 
-			update_post_meta($post_id, $input_slug, $new_value );
-			
-			wp_die(
+			/*wp_die(
 				var_dump(
 					array(
 						$post_id,
@@ -110,7 +112,9 @@ class CLINIC_Post_Meta_Boxes {
 						$_POST,
 					)
 				)
-			);
+			);*/
+
+			update_post_meta( $post_id, $input_slug, $new_value );
 
 		}
 
@@ -124,15 +128,22 @@ class CLINIC_Post_Meta_Boxes {
 		$out = array(
 
 			'client_ids' => array(
-				'label'   => esc_html__( 'Which Clients?', 'clinic' ),
-				'type'    => 'checkbox_group',
-				'options' => $clients -> get_as_kv(),
+				'label'         => esc_html__( 'Which Clients?', 'clinic' ),
+				'type'          => 'checkbox_group',
+				'options'       => $clients -> get_as_kv(),
+				'sanitization_cb' => 'absint',
 			),
 
 			'provider_ids' => array(
-				'label'   => esc_html__( 'Which Providers?', 'clinic' ),
-				'type'    => 'checkbox_group',
-				'options' => $providers -> get_as_kv(),
+				'label'         => esc_html__( 'Which Providers?', 'clinic' ),
+				'type'          => 'checkbox_group',
+				'options'       => $providers -> get_as_kv(),
+				'sanitization_cb' => 'absint',
+			),
+
+			'time_window' => array(
+				'label' => esc_html__( 'Session Timeline', 'clinic' ),
+				'type'  => wp_die( https://developer.wordpress.org/reference/functions/touch_time/ )
 			),
 
 		);
@@ -178,26 +189,28 @@ class CLINIC_Post_Meta_Boxes {
 
 		if( $type == 'checkbox_group' ) {
 
-			var_dump( $value );
-
 			$name_square = $name . '[]';
 
 			$inputs = '';
 			foreach( $options as $option_k => $option_v ) {
 
 				$checked = '';
-				if( in_array( $option_k, $value ) ) {
-					$checked = 'checked';
+				if( is_array( $value ) ) {
+					if( in_array( $option_k, $value ) ) {
+						$checked = 'checked';
+					}
 				}
 
 				$inputs .= "
 					<div class='$class-group-input'>	
-						<label for='$id-$option_k'>$option_v</label>
 						<input $checked id='$id-$option_k' name='$name_square' type='checkbox' value='$option_k'>
+						<label for='$id-$option_k'>$option_v</label>
 					</div>
 				";
 
 			}
+
+			if( empty( $inputs ) ) { $inputs = esc_html__( '(Not Applicable)', 'clinic' ); }
 
 			$inputs = "<div class='$class-group'>$inputs</div>";
 
