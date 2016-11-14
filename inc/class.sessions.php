@@ -10,6 +10,10 @@
 
 class CLINIC_Sessions {
 
+	function __construct() {
+
+	}
+
 	function the_page() {
 
 		echo $this -> get_page();
@@ -56,6 +60,8 @@ class CLINIC_Sessions {
 
 	function get_calendar( $initial = true, $echo = true ) {
 		
+		$class = sanitize_html_class( CLINIC . '-' . __FUNCTION__ );
+
 		global $wp_locale;
 		global $wpdb;
 
@@ -81,7 +87,7 @@ class CLINIC_Sessions {
 		foreach ( $myweek as $wd ) {
 			$day_name = $initial ? $wp_locale->get_weekday_initial( $wd ) : $wp_locale->get_weekday_abbrev( $wd );
 			$wd = esc_attr( $wd );
-			$head .= "<th scope='col' title='$wd'>$day_name</th>";
+			$head .= "<th scope='col' title='$wd' class='$class-th'>$day_name</th>";
 		}
 
 		$body = '';
@@ -89,7 +95,7 @@ class CLINIC_Sessions {
 		// See how much we should pad in the beginning
 		$pad = calendar_week_mod( date( 'w', $unixmonth ) - $week_begins );
 		if ( 0 != $pad ) {
-			$body .= "<td colspan='$pad' class='pad'>&nbsp;</td>";
+			$body .= "<td colspan='$pad' class='$class-td $class-td-pad'>&nbsp;</td>";
 		}
 
 		$newrow = false;
@@ -97,7 +103,7 @@ class CLINIC_Sessions {
 
 		for ( $day = 1; $day <= $daysinmonth; ++$day ) {
 			if ( isset($newrow) && $newrow ) {
-				$body .= "</tr><tr>";
+				$body .= "</tr><tr class='$class-tr'>";
 			}
 			$newrow = false;
 
@@ -105,11 +111,11 @@ class CLINIC_Sessions {
 			
 				$thismonth == gmdate( 'm', $ts ) &&
 				$thisyear == gmdate( 'Y', $ts ) ) {
-				$body .= '<td id="today">';
+				$body .= "<td class='$class-td $class-td-day $class-td-today'>";
 			
 			} else {
 			
-				$body .= '<td>';
+				$body .= "<td class='$class-td $class-td-day'>";
 			}
 			
 			$body .= $day;
@@ -126,17 +132,17 @@ class CLINIC_Sessions {
 
 		$pad = 7 - calendar_week_mod( date( 'w', mktime( 0, 0 , 0, $thismonth, $day, $thisyear ) ) - $week_begins );
 		if ( $pad != 0 && $pad != 7 ) {
-			$body .= "<td class='pad' colspan='$pad'>&nbsp;</td>";
+			$body .= "<td class='$class-td-pad $class-td' colspan='$pad'>&nbsp;</td>";
 		}
 
 		$out = "
-			<table>
-				<thead>
+			<table class='$class'>
+				<thead class='$class-thead'>
 					<tr>
 						$head
 					</tr>
-				<tbody>
-					<tr>
+				<tbody class='$class-tbody'>
+					<tr class='$class-tr'>
 						$body
 					</tr>
 				</tbody>

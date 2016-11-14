@@ -21,6 +21,8 @@ class CLINIC_Script {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'script' ) );
 
+		add_action( 'admin_enqueue_scripts', array( $this, 'style' ) );
+
 	}
 
 	function script() {
@@ -34,5 +36,17 @@ class CLINIC_Script {
 		);
 
 	}
+
+	function style() {
+
+		wp_register_style(
+			CLINIC . '-style',
+			CLINIC_URL . 'css/style.css',
+			array(),
+			CLINIC_VERSION
+		);
+		
+		wp_enqueue_style( CLINIC . '-style' );
+	}	
 
 }

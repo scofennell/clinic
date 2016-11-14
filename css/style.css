@@ -1,0 +1,38 @@
+
+
+
+.clinic-get_calendar {
+	border: 1px solid #000;
+	width: 100%;
+}
+
+.clinic-get_calendar-th,
+.clinic-get_calendar-td {
+	padding: 1em;
+	vertical-align: top;
+	width: 14.27%;
+}
+
+.clinic-get_calendar-th {
+	border-bottom: 2px solid #000;
+}
+
+.clinic-get_calendar-td {
+	border-bottom: 1px dotted #000;
+}
+
+.clinic-get_calendar-td-pad {
+	background-color: #eee;
+	background-image: linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white), 
+	linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white);
+	background-size:8px 8px;
+	background-position:0 0, 4px 4px
+}
+
+.clinic-get_calendar-td-day:nth-child( odd ) {
+	background: rgba( 0, 0, 0, .1 );
+}
+
+.clinic-get_calendar-tr:last-child .clinic-get_calendar-td {
+	border-bottom: none;
+}
