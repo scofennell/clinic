@@ -93,13 +93,15 @@ class CLINIC_Post_Meta_Boxes {
 			'start' => array(
 				'label'           => esc_html__( 'Start', 'clinic' ),
 				'type'            => 'touch_time',
-				'sanitization_cb' => 'sanitize_text_field',
+				'sanitization_cb' => array( $this, 'date_to_timestamp' ),
+				'is_implodable'   => TRUE,
 			),
 
 			'end' => array(
 				'label'           => esc_html__( 'End', 'clinic' ),
 				'type'            => 'touch_time',
-				'sanitization_cb' => 'sanitize_text_field',
+				'sanitization_cb' => array( $this, 'date_to_timestamp' ),
+				'is_implodable'   => TRUE,
 			),
 
 		);
@@ -154,7 +156,6 @@ class CLINIC_Post_Meta_Boxes {
 
 		$get_post_custom = get_post_custom( $post_id );
 
-
 		foreach( $inputs as $input_slug => $input ) {
 
 			$old_value = $get_post_custom[ $input_slug ];
@@ -165,9 +166,22 @@ class CLINIC_Post_Meta_Boxes {
 			}
 
 			if( is_scalar( $_POST[ $input_slug ] ) ) {
+			
 				$new_value = call_user_func( $input['sanitization_cb'], $_POST[ $input_slug ] );
+			
 			} elseif( is_array( $_POST[ $input_slug ] ) ) {
-				$new_value = array_map( $input['sanitization_cb'], $_POST[ $input_slug ] );
+			
+				if( isset( $input['is_implodable'] ) ) {
+
+					$new_value = call_user_func( $input['sanitization_cb'], $_POST[ $input_slug ] );
+
+
+				} else {
+
+					$new_value = array_map( $input['sanitization_cb'], $_POST[ $input_slug ] );
+
+				}
+			
 			}
 
 			if( $old_value === $new_value ) { continue; }
@@ -307,8 +321,6 @@ class CLINIC_Post_Meta_Boxes {
 
 		$label = $input['label'];
 
-		wp_enqueue_script( CLINIC . '-script' );
-
 		$out = '';
 
 		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
@@ -321,60 +333,66 @@ class CLINIC_Post_Meta_Boxes {
 		$month_label  = esc_html__( 'Month', 'clinic' );
 		$year_label   = esc_html__( 'Year', 'clinic' );
 
-		$label = esc_html( $label );
-		$value = absint( $value );
+		$minute_name = $input_slug . '[mn]';			
+		$hour_name   = $input_slug . '[hh]';
+		$day_name    = $input_slug . '[jj]';
+		$month_name  = $input_slug . '[mm]';
+		$year_name   = $input_slug . '[aa]';
 
-		#$jj = date( 'd', $value );
-		#$mm = date( 'F', $value );
-		#$aa = date( 'Y', $value );
-		#$hh = date( 'H', $value );
-		#$mn = date( 'i', $value );
-		#$ss = date( 's', $value );
+	
+		$value = absint( $value );
+		if( empty( $value ) ) { $value = current_time( 'timestamp' ); }
+
+		$jj = date( 'd', $value );
+		$mm = date( 'm', $value );
+		$aa = date( 'Y', $value );
+		$hh = date( 'H', $value );
+		$mn = date( 'i', $value );
+		$ss = date( 's', $value );
 
 		$months = '';
-		for ( $i = 1; $i < 13; $i = $i +1 ) {
+		for ( $i = 1; $i < 13; $i = $i + 1 ) {
 
-			// The -1 is because in JS months are zero-indexed.
-			$monthnum = zeroise($i, 2) - 1;
+			$monthnum  = zeroise( $i, 2 );
 			$monthtext = $wp_locale -> get_month( $i );
-			#$selected = selected( $monthtext, $mm, false );
-			$months .= "<option value='$monthnum' data-text='$monthtext'>$monthtext</option>";
+			$selected  = selected( $monthnum, $mm, FALSE );
+			$months   .= "<option value='$monthnum' $selected>$monthtext</option>";
 		}
 		
 		$month = "
 			<label for='$class-$input_slug-mm'>
 				<span class='screen-reader-text'>$month_label</span>
-				<select class='$class-mm' id='$class-$input_slug-mm'>
+				<select class='$class-mm' name='$month_name' id='$class-$input_slug-mm'>
 					$months
 				</select>
 			</label>
 		";
 
 		$day = "
-			<label for='$class-$input_slug-mm'>
+			<label for='$class-$input_slug-jj'>
 				<span class='screen-reader-text'>$day_label</span>
-				<input class='$class-jj' type='number' id='$class-$input_slug-jj' value='' size='2' maxlength='2' autocomplete='off' min='1' max='31'>
+				<input class='$class-jj'name='$day_name' type='number' id='$class-$input_slug-jj' value='$jj' size='2' maxlength='2' autocomplete='off' min='1' max='31'>
 			</label>
 		";
 	
 		$year = "
 			<label for='$class-$input_slug-aa'>
 				<span class='screen-reader-text'>$year_label</span>
-				<input class='$class-aa' type='number' id='$class-$input_slug-aa' value='' size='4' maxlength='4' autocomplete='off' min='0' max='3000'>
+				<input class='$class-aa' name='$year_name' type='number' id='$class-$input_slug-aa' value='$aa' size='4' maxlength='4' autocomplete='off' min='0' max='3000'>
 			</label>
 		";
 
 		$hour = "
 			<label for='$class-$input_slug-hh'>
 				<span class='screen-reader-text'>$hour_label</span>
-				<input class='$class-hh' type='number' id='$class-$input_slug-hh' value='' size='2' maxlength='2' autocomplete='off' min='0' max='23'>
+				<input class='$class-hh' type='number' name='$hour_name' id='$class-$input_slug-hh' value='$hh' size='2' maxlength='2' autocomplete='off' min='0' max='23'>
 			</label>
 		";
 
 		$minute = "
 			<label for='$class-$input_slug-mn'>
 				<span class='screen-reader-text'>$minute_label</span>
-				<input class='$class-mn' type='number' id='$class-$input_slug-mn' value='' size='2' maxlength='2' autocomplete='off' min='0' max='59'>
+				<input class='$class-mn' type='number' name='$minute_name' id='$class-$input_slug-mn' value='$mn' size='2' maxlength='2' autocomplete='off' min='0' max='59'>
 			</label>
 		";
 
@@ -385,10 +403,26 @@ class CLINIC_Post_Meta_Boxes {
 			<div class='$class-control'>
 				$time
 			</div>
-			<input class='$class-hidden' type='number' value='$value' name='$input_slug'>
 		";
 
 		return $out;
+
+	}
+
+	function date_to_timestamp( $date ) {
+
+		$mm = $date['mm'];
+		$jj = $date['jj'];
+		$aa = $date['aa'];
+		$hh = $date['hh'];
+		$mn = $date['mn'];
+
+		$date = "$aa-$mm-$jj $hh:$mn:00";
+
+		$out = strtotime( $date );
+
+		return $out;
+
 
 
 	}

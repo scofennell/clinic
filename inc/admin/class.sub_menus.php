@@ -33,7 +33,7 @@ class CLINIC_Sub_Menus {
 			esc_html__( 'Calendar', 'clinic' ),
 			'edit_posts',
 			'calendar',
-			array( $sessions, 'the_page' )
+			array( $sessions, 'the_calendar_page' )
 		);
 
 	}
