@@ -174,20 +174,18 @@ class CLINIC_Sessions {
 
 		$query = new WP_Query( $args );
 
-		$found_posts = $query -> found_posts;
-		if( empty( $found_posts ) ) { return FALSE; }
-
+		if ( ! $query -> have_posts() ) { return FALSE; }
+	
 		$out = '';
-		$posts = $query -> posts;
-
-		foreach( $posts as $post ) {
-			$post_title = wp_kses_post( $post -> post_title );
+		
+		while ( $query -> have_posts() ) {
+			$query->the_post();
+			
+			$post_title = get_the_title();
 			if( empty( $post_title ) ) {
-
-				$post_title = $this -> get_attendees( $post -> ID );
-
+				$post_title = $this -> get_attendees( get_the_ID() );
 			}
-			$permalink  = esc_url( get_permalink( $post -> ID ) );
+			$permalink  = esc_url( get_permalink() );
 			$out .= "<li><a href='$permalink'>$post_title</a></li>";
 		}
 
