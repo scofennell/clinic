@@ -158,11 +158,14 @@ class CLINIC_Sessions {
 		$start_of_day = strtotime( "$year-$month-$day" );
 		$end_of_day   = $start_of_day + DAY_IN_SECONDS;		
 
+		$posts_per_page = 5;
+
 		$args = array(
-			'post_type'  => 'session',
-			'meta_key'   => 'start',
-			'orderby'    => 'meta_value_num',
-			'order'      => 'ASC',
+			'post_type'      => 'session',
+			'meta_key'       => 'start',
+			'orderby'        => 'meta_value_num',
+			'order'          => 'ASC',
+			'posts_per_page' => $posts_per_page,
 			'meta_query' => array(
 				array(
 					'key'     => 'start',
@@ -172,14 +175,14 @@ class CLINIC_Sessions {
 			),
 		);
 
-		$query = new WP_Query( $args );
+		$the_query = new WP_Query( $args );
 
-		if ( ! $query -> have_posts() ) { return FALSE; }
+		if ( ! $the_query -> have_posts() ) { return FALSE; }
 	
 		$out = '';
 		
-		while ( $query -> have_posts() ) {
-			$query->the_post();
+		while( $the_query -> have_posts() ) {
+			$the_query -> the_post();
 			
 			$post_title = get_the_title();
 			if( empty( $post_title ) ) {
@@ -189,7 +192,16 @@ class CLINIC_Sessions {
 			$out .= "<li><a href='$permalink'>$post_title</a></li>";
 		}
 
+		wp_reset_postdata();
+
 		$out = "<ul>$out</ul>";
+
+		$found_posts = $the_query -> found_posts;
+		if( $found_posts > $posts_per_page ) {
+			$href = '';
+			$view_all = sprintf( esc_html__( '&hellip; view all %d sessions', 'clinic' ), $found_posts );
+			$out .= "<div><a href='$href'><i>$view_all</i></a></div>";
+		}
 
 
 		return $out;
