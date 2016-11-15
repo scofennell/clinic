@@ -182,7 +182,13 @@ class CLINIC_Sessions {
 
 		foreach( $posts as $post ) {
 			$post_title = wp_kses_post( $post -> post_title );
-			$out .= "<li>$post_title</li>";
+			if( empty( $post_title ) ) {
+
+				$post_title = $this -> get_attendees( $post -> ID );
+
+			}
+			$permalink  = esc_url( get_permalink( $post -> ID ) );
+			$out .= "<li><a href='$permalink'>$post_title</a></li>";
 		}
 
 		$out = "<ul>$out</ul>";
@@ -191,5 +197,120 @@ class CLINIC_Sessions {
 		return $out;
 
 	}
+
+	function get_attendees( $post_id ) {
+
+		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
+
+		$out = '';
+
+		$clients_out = '';
+		$clients = $this -> get_session_clients( $post_id );
+		if( is_array( $clients ) ) {
+
+			$count = count( $clients );
+			$i = 0;
+			foreach( $clients as $client_id => $client ) {
+
+				$i++;
+				$clients_out .= $client -> display_name;
+				if( $i < ( $count - 1 ) ) {
+					$clients_out .= esc_html__( ', ', 'clinic' );
+				} elseif( $i < $count ) {
+					$clients_out .= esc_html__( ' and ', 'clinic' );	
+				}
+
+			}
+
+		}
+
+		$providers_out = '';
+		$providers = $this -> get_session_providers( $post_id );
+		if( is_array( $providers ) ) {
+			
+			$count = count( $providers );
+			$i = 0;
+			foreach( $providers as $provider_id => $provider ) {
+				$i++;
+				$providers_out .= $provider -> display_name;
+				if( $i < ( $count - 1 ) ) {
+					$providers_out .= esc_html__( ', ', 'clinic' );
+				} elseif( $i < $count ) {
+					$providers_out .= esc_html__( ' and ', 'clinic' );	
+				}
+
+			}
+
+		}		
+
+		if( ! empty( $providers_out ) && ! ( empty( $clients_out ) ) ) {
+			$out = sprintf( esc_html__( '%s | %s', 'clinic' ), $clients_out, $providers_out );
+		} else {
+			$out = $providers_out.$clients_out;
+		}
+
+		if( ! empty( $out ) ) {
+			$out = "<div class='$class'>$out</div>";
+		}
+
+		return $out;
+
+	}
+
+	function get_session_clients( $post_id ) {
+
+		$out = array();
+
+		$ids = $this -> get_session_client_ids( $post_id );
+
+		if( is_array( $ids ) ) {
+
+			foreach( $ids as $id ) {
+
+				$out[ $id ] = get_user_by( 'ID', $id );
+
+			}
+
+		}
+
+		return $out;
+
+	}
+
+	function get_session_providers( $post_id ) {
+
+		$out = array();
+
+		$ids = $this -> get_session_provider_ids( $post_id );
+
+		if( is_array( $ids ) ) {
+
+			foreach( $ids as $id ) {
+
+				$out[ $id ] = get_user_by( 'ID', $id );
+
+			}
+
+		}
+
+		return $out;
+
+	}
+
+	function get_session_client_ids( $post_id ) {
+
+		$ids = get_post_meta( $post_id, 'client_ids', TRUE );
+
+		return $ids;
+
+	}
+
+	function get_session_provider_ids( $post_id ) {
+
+		$ids = get_post_meta( $post_id, 'provider_ids', TRUE );		
+
+		return $ids;
+
+	}	
 
 }
