@@ -91,6 +91,8 @@ class CLINIC_Post_Meta_Boxes {
 
 		$inputs = $this -> get_session_who_inputs();
 
+		$post = new CLINIC_Session( $post -> ID );
+
 		$out = $this -> build_meta_inputs( $post, 'session_who', $inputs );
 
 		echo $out;
@@ -101,7 +103,9 @@ class CLINIC_Post_Meta_Boxes {
 
 		$inputs = $this -> get_session_who_inputs();
 
-		return $this -> save_meta_inputs( $post_id, 'session_who', $inputs );
+		$session = new CLINIC_Session( $post_id );
+
+		return $this -> save_meta_inputs( $post_id, 'session_who', $inputs, $session );
 
 	}
 
@@ -128,6 +132,8 @@ class CLINIC_Post_Meta_Boxes {
 
 		$inputs = $this -> get_session_where_inputs();
 
+		$post = new CLINIC_Session( $post -> ID );
+
 		$out = $this -> build_meta_inputs( $post, 'session_where', $inputs );
 
 		echo $out;
@@ -138,13 +144,17 @@ class CLINIC_Post_Meta_Boxes {
 
 		$inputs = $this -> get_session_where_inputs();
 
-		return $this -> save_meta_inputs( $post_id, 'session_where', $inputs );
+		$session = new CLINIC_Session( $post_id );
+
+		return $this -> save_meta_inputs( $post_id, 'session_where', $inputs, $session );
 
 	}	
 
 	function session_when_cb( $post ) {
 
 		$inputs = $this -> get_session_when_inputs();
+
+		$post = new CLINIC_Session( $post -> ID );
 
 		$out = $this -> build_meta_inputs( $post, 'session_when', $inputs );
 
@@ -156,7 +166,9 @@ class CLINIC_Post_Meta_Boxes {
 
 		$inputs = $this -> get_session_when_inputs();
 
-		return $this -> save_meta_inputs( $post_id, 'session_when', $inputs );
+		$session = new CLINIC_Session( $post_id );
+
+		return $this -> save_meta_inputs( $post_id, 'session_when', $inputs, $session );
 
 	}	
 
@@ -184,7 +196,7 @@ class CLINIC_Post_Meta_Boxes {
 
 	}
 
-	function save_meta_inputs( $post_id, $meta_box_slug, $inputs ) {
+	function save_meta_inputs( $post_id, $meta_box_slug, $inputs, $post ) {
 
 		if( ! isset( $_POST[ $meta_box_slug ] ) ) { return $post_id; }
 
@@ -207,7 +219,7 @@ class CLINIC_Post_Meta_Boxes {
 			$old_value = $get_post_custom[ $input_slug ];
 
 			if( ! isset( $_POST[ $input_slug ] ) ) {
-				delete_post_meta( $post_id, $input_slug );
+				$post -> delete_meta( $input_slug );
 				continue;
 			}
 
@@ -233,7 +245,7 @@ class CLINIC_Post_Meta_Boxes {
 			if( $old_value === $new_value ) { continue; }
 
 			if( empty( $new_value ) ) {
-				delete_post_meta( $post_id, $input_slug );
+				$post -> delete_meta( $input_slug );
 				continue;
 			}
 
@@ -251,7 +263,7 @@ class CLINIC_Post_Meta_Boxes {
 				)
 			);*/
 
-			update_post_meta( $post_id, $input_slug, $new_value );
+			$post -> update_meta( $input_slug, $new_value );
 
 		}
 
@@ -280,7 +292,7 @@ class CLINIC_Post_Meta_Boxes {
 		$label = esc_html( $input['label'] );
 		$name  = esc_attr( $input_slug );
 		$type  = esc_attr( $input['type'] );
-		$value = get_post_meta( $post -> ID, $input_slug, TRUE );
+		$value = $post -> get_meta( $input_slug );
 
 		$options = '';
 		if( isset( $input['options'] ) ) {

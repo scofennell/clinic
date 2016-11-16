@@ -25,7 +25,7 @@ class CLINIC_Sub_Menus {
 
 	function session() {
 
-		$sessions = new CLINIC_Sessions;
+		$calendar = new CLINIC_Calendar;
 
 		add_submenu_page(
 			'edit.php?post_type=session',
@@ -33,7 +33,7 @@ class CLINIC_Sub_Menus {
 			esc_html__( 'Calendar', 'clinic' ),
 			'edit_posts',
 			'calendar',
-			array( $sessions, 'the_calendar_page' )
+			array( $calendar, 'the_page' )
 		);
 
 	}

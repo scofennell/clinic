@@ -50,13 +50,15 @@ class CLINIC_Post_Columns {
 	
 		global $post;
 
+		$session = new CLINIC_Session( $post_id );
+
 		if( $column == 'start' ) {
 
-			echo get_post_meta( $post_id, 'start', TRUE );
+			echo $session -> get_meta( 'start' );
 
 		} elseif( $column == 'end' ) {
 
-			echo get_post_meta( $post_id, 'end', TRUE );
+			echo $session -> get_meta( 'end' );
 
 		} elseif( $column == 'clients' ) {
 
