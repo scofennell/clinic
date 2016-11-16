@@ -22,6 +22,7 @@ class CLINIC_Post_Meta_Boxes {
 		add_action( 'add_meta_boxes_session', array( $this, 'session' ) );
 		add_action( 'save_post_session', array( $this, 'save_session_who' ) );
 		add_action( 'save_post_session', array( $this, 'save_session_when' ) );
+		add_action( 'save_post_session', array( $this, 'save_session_where' ) );
 		#add_action( 'add_meta_boxes_service', array( $this, 'service' ) );
 		#add_action( 'add_meta_boxes_location', array( $this, 'location' ) );
 		#add_action( 'add_meta_boxes_testimonial', array( $this, 'testimonial' ) );
@@ -46,7 +47,43 @@ class CLINIC_Post_Meta_Boxes {
         	'session',
         	'normal',
         	'default'
+    	);
+
+    	add_meta_box( 
+    		'session_where',
+        	esc_html__( 'Where', 'clinic' ),
+        	array( $this, 'session_where_cb' ),
+        	'session',
+        	'normal',
+        	'default'
     	);	
+
+	}
+
+	function get_session_who_inputs() {
+
+		$clients = new CLINIC_Clients;
+		$providers = new CLINIC_Providers;
+
+		$out = array(
+
+			'client_ids' => array(
+				'label'         => esc_html__( 'Which Clients?', 'clinic' ),
+				'type'          => 'checkbox_group',
+				'options'       => $clients -> get_as_kv(),
+				'sanitization_cb' => 'absint',
+			),
+
+			'provider_ids' => array(
+				'label'         => esc_html__( 'Which Providers?', 'clinic' ),
+				'type'          => 'checkbox_group',
+				'options'       => $providers -> get_as_kv(),
+				'sanitization_cb' => 'absint',
+			),
+
+		);
+
+		return $out;
 
 	}
 
@@ -67,6 +104,43 @@ class CLINIC_Post_Meta_Boxes {
 		return $this -> save_meta_inputs( $post_id, 'session_who', $inputs );
 
 	}
+
+	function get_session_where_inputs() {
+
+		$locations = new CLINIC_Locations;
+		
+		$out = array(
+
+			'location_ids' => array(
+				'label'         => esc_html__( 'Which Locations?', 'clinic' ),
+				'type'          => 'checkbox_group',
+				'options'       => $locations -> get_as_kv(),
+				'sanitization_cb' => 'absint',
+			),
+
+		);
+
+		return $out;
+
+	}
+
+	function session_where_cb( $post ) {
+
+		$inputs = $this -> get_session_where_inputs();
+
+		$out = $this -> build_meta_inputs( $post, 'session_where', $inputs );
+
+		echo $out;
+
+	}
+
+	function save_session_where( $post_id ) {
+
+		$inputs = $this -> get_session_where_inputs();
+
+		return $this -> save_meta_inputs( $post_id, 'session_where', $inputs );
+
+	}	
 
 	function session_when_cb( $post ) {
 
@@ -109,34 +183,6 @@ class CLINIC_Post_Meta_Boxes {
 		return $out;
 
 	}
-
-	function get_session_who_inputs() {
-
-		$clients = new CLINIC_Clients;
-		$providers = new CLINIC_Providers;
-
-		$out = array(
-
-			'client_ids' => array(
-				'label'         => esc_html__( 'Which Clients?', 'clinic' ),
-				'type'          => 'checkbox_group',
-				'options'       => $clients -> get_as_kv(),
-				'sanitization_cb' => 'absint',
-			),
-
-			'provider_ids' => array(
-				'label'         => esc_html__( 'Which Providers?', 'clinic' ),
-				'type'          => 'checkbox_group',
-				'options'       => $providers -> get_as_kv(),
-				'sanitization_cb' => 'absint',
-			),
-
-		);
-
-		return $out;
-
-	}
-
 
 	function save_meta_inputs( $post_id, $meta_box_slug, $inputs ) {
 
@@ -251,22 +297,23 @@ class CLINIC_Post_Meta_Boxes {
 			$name_square = $name . '[]';
 
 			$inputs = '';
-			foreach( $options as $option_k => $option_v ) {
+			if( is_array( $options ) ) {
+				foreach( $options as $option_k => $option_v ) {
 
-				$checked = '';
-				if( is_array( $value ) ) {
-					if( in_array( $option_k, $value ) ) {
-						$checked = 'checked';
+					$checked = '';
+					if( is_array( $value ) ) {
+						if( in_array( $option_k, $value ) ) {
+							$checked = 'checked';
+						}
 					}
-				}
 
-				$inputs .= "
-					<div class='$class-group-input'>	
-						<input $checked id='$id-$option_k' name='$name_square' type='checkbox' value='$option_k'>
-						<label for='$id-$option_k'>$option_v</label>
-					</div>
-				";
-
+					$inputs .= "
+						<div class='$class-group-input'>	
+							<input $checked id='$id-$option_k' name='$name_square' type='checkbox' value='$option_k'>
+							<label for='$id-$option_k'>$option_v</label>
+						</div>
+					";
+				}		
 			}
 
 			if( empty( $inputs ) ) { $inputs = esc_html__( '(Not Applicable)', 'clinic' ); }
