@@ -54,48 +54,75 @@
 	border-bottom: none;
 }
 
-
-
-
-
-@keyframes fadeIn {
-    from {
-        opacity:0;
-    }
-    to {
-        opacity:1;
-    }
+.clinic-get_calendar-date {
+	text-decoration: none;
+	font-weight: 600;
 }
 
-@keyframes flip {
-    from {
-        transform: rotate( 0deg);
-    }
-    to {
-        transform: rotate( 180deg );
-    }
+
+
+
+
+
+.CLINIC_Sessions-get_as_ul-li {
+	margin-bottom: 2em;
 }
+
+.CLINIC_Sessions-get_as_ul-li:last-child {
+	margin-bottom: 0;
+}
+
+.CLINIC_Sessions-get_as_ul-title {
+	margin: 0;
+	font-weight: 400;
+}
+
+.CLINIC_Sessions-get_as_ul-title .clinic-shows_hides {
+	margin-left: .25em;
+	vertical-align: middle;
+}
+
+.CLINIC_Sessions-get_as_ul-details {
+
+}
+
+.CLINIC_Sessions-get_as_ul-detail {
+	margin-bottom: 0;
+}
+
+
+
+
+
+
+
+
+
 
 .clinic-shown_hidden {
 	position: absolute;
 	z-index: -1;
 	opacity: 0;
+	transition: none;
 }
 
 .clinic-shown_hidden-shown {
 	position: relative;
 	z-index: 1;
 	opacity: 1;
-	animation: fadeIn 300ms;
+	transition: opacity 300ms ease-in-out;
 }
 
 .clinic-shows_hides {
-	transform: rotate( 0180deg );
+	display: inline-block;
+	text-decoration: none;
+	transform: rotate(0deg);
+	transition: transform 300ms ease-in-out;
+
 }
 
 .clinic-shows_hides-showing {
-	transform: rotate( 180deg );
-	animation: flip 300ms;
+	transform: rotate(-180deg);
 }
 
 

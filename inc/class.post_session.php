@@ -77,21 +77,25 @@ class CLINIC_Session extends CLINIC_Post {
 		if( ! $format ) { $format = get_option( 'time_format' ); }
 
 		$start_time = $this -> get_start_time( $format );
+		$starts_days_before = $this -> starts_days_before( $timestamp );
 		if( $timestamp ) {
-			if( $this -> starts_days_before( $timestamp ) ) {
-				$start_time = "<span class='$class-left'>&#9664;</span>";
+			if( $starts_days_before ) {
+				$start_time = "<span class='$class-left'>&larr;</span>";
 			}
 		}
 
-		$end_time   = $this -> get_end_time( $format );
+		$end_time = $this -> get_end_time( $format );
+		$ends_days_ahead = $this -> ends_days_ahead( $timestamp );
 		if( $timestamp ) {
-			if( $this -> ends_days_ahead( $timestamp ) ) {
-				$end_time = "<span class='$class-right'>&#9654;</span>";
+			if( $ends_days_ahead ) {
+				$end_time = "<span class='$class-right'>&rarr;</span>";
 			}
 		}
 
-		if( ! empty( $start_time ) && ! empty( $end_time ) ) {
-			$out = sprintf( __( '%s - %s', 'clinic' ), $start_time, $end_time );
+		if( ! $starts_days_before && ! $ends_days_ahead ) {
+			$out = sprintf( __( '%s - %s:', 'clinic' ), $start_time, $end_time );
+		} elseif( $starts_days_before || $ends_days_ahead ) {
+			$out = "$start_time $end_time";
 		} else {
 			$out = $start_time;
 		}
@@ -215,5 +219,49 @@ class CLINIC_Session extends CLINIC_Post {
 
 		return $out;
 	}	
+
+	function get_details() {
+
+		$details = '';
+
+		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
+
+		$shown_hidden = sanitize_html_class( CLINIC . '-shown_hidden' );
+
+		$clients   = $this -> get_meta_as_list( 'client_ids', 'display_name', 'get_userdata', 'get_edit_user_link' );
+		if( ! empty( $clients ) ) {
+			$client_label = "<span class='$class-meta_label'>" . esc_html__( 'Clients' ) . '</span>';
+			$clients   = sprintf( esc_html__( '%s: %s', 'clinic' ), $client_label, $clients );
+			$details .= "<li class='$class-detail'>$clients</li>";
+		}
+
+		$providers = $this -> get_meta_as_list( 'provider_ids', 'display_name', 'get_userdata', 'get_edit_user_link' );
+		if( ! empty( $providers ) ) {
+			$provider_label = "<span class='$class-meta_label'>" . esc_html__( 'Providers' ) . '</span>';
+			$providers = sprintf( esc_html__( '%s: %s', 'clinic' ), $provider_label, $providers );
+			$details .= "<li class='$class-detail'>$providers</li>";
+		}
+
+		$locations = $this -> get_meta_as_list( 'location_ids', 'post_title', 'get_post', 'get_edit_post_link' );
+		if( ! empty( $locations ) ) {
+			$location_label = "<span class='$class-meta_label'>" . esc_html__( 'Locations' ) . '</span>';
+			$locations = sprintf( esc_html__( '%s: %s', 'clinic' ), $location_label, $locations );
+			$details .= "<li class='$class-detail'>$locations</li>";
+		}
+		
+		$services  = $this -> get_meta_as_list( 'service_ids', 'post_title', 'get_post', 'get_edit_post_link' );
+		if( ! empty( $services ) ) {
+			$services_label = "<span class='$class-meta_label'>" . esc_html__( 'Services' ) . '</span>';
+			$services  = sprintf( esc_html__( '%s: %s', 'clinic' ), $services_label, $services );
+			$details .= "<li class='$class-detail'>$services</li>";
+		}
+
+		if( ! empty( $details ) ) {
+			$details = "<ul class='$class-details $shown_hidden'>$details</ul>";
+		}
+
+		return $details;
+
+	}
 
 }

@@ -48,4 +48,37 @@ abstract class CLINIC_Post {
 
 	}		
 
+	function get_meta_as_objects( $key, $obj_cb ) {
+	
+		$out = array();
+
+		$meta = $this -> get_meta( $key );
+
+		if( ! is_array( $meta ) ) { return FALSE; }
+
+		foreach( $meta as $id ) {
+
+			$out[ $id ] = call_user_func( $obj_cb, $id );
+
+		}
+
+		return $out;
+
+	}
+
+	function get_meta_as_list( $key, $label, $obj_cb, $href_cb ) {
+	
+		$meta = $this -> get_meta_as_objects( $key, $obj_cb );
+
+		if( ! is_array( $meta ) ) { return FALSE; }
+
+		$formatting = new CLINIC_Formatting( $meta );
+
+		$out = $formatting -> array_to_comma_sep( $label, $href_cb );
+
+		return $out;
+
+	}
+
+
 }

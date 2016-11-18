@@ -16,7 +16,7 @@ class CLINIC_Formatting {
 
 	}
 
-	function array_to_comma_sep( $value ) {
+	function array_to_comma_sep( $label, $href_cb ) {
 
 		$in  = $this -> in;
 		$out = '';
@@ -28,7 +28,8 @@ class CLINIC_Formatting {
 		foreach( $in as $k => $v ) {
 
 			$i++;
-			$out .= $v -> $value;
+			$href = esc_url( call_user_func( $href_cb, $k ) );
+			$out .= "<a href='$href'>" . $v -> $label . '</a>';
 			if( $i < ( $count - 1 ) ) {
 				$out .= esc_html__( ', ', 'clinic' );
 			} elseif( $i < $count ) {

@@ -110,7 +110,7 @@ class CLINIC_Calendar {
 			}
 			
 			$day_href = '';
-			$body .= "<a href='$day_href'>$day</a>";
+			$body .= "<a class='$class-date' href='$day_href'>$day</a>";
 
 			$body .= $this -> get_for_day( $day, $thismonth, $thisyear );
 			

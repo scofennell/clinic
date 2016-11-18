@@ -166,7 +166,7 @@ class CLINIC_Post_Meta_Boxes {
 		
 		$out = array(
 
-			'location_ids' => array(
+			'service_ids' => array(
 				'label'         => esc_html__( 'Which Services?', 'clinic' ),
 				'type'          => 'checkbox_group',
 				'options'       => $services -> get_as_kv(),
