@@ -35,6 +35,11 @@ class CLINIC_Script {
 			TRUE
 		);
 
+		$meta = new CLINIC_Meta;
+		if( $meta -> get_is_settings_page() ) {
+			wp_enqueue_script( CLINIC . '-script' );
+		}
+
 	}
 
 	function style() {
@@ -45,8 +50,12 @@ class CLINIC_Script {
 			array(),
 			CLINIC_VERSION
 		);
+
+		$meta = new CLINIC_Meta;
+		if( $meta -> get_is_settings_page() ) {
+			wp_enqueue_style( CLINIC . '-style' );
+		}	
 		
-		wp_enqueue_style( CLINIC . '-style' );
 	}	
 
 }

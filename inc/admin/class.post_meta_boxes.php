@@ -23,6 +23,7 @@ class CLINIC_Post_Meta_Boxes {
 		add_action( 'save_post_session', array( $this, 'save_session_who' ) );
 		add_action( 'save_post_session', array( $this, 'save_session_when' ) );
 		add_action( 'save_post_session', array( $this, 'save_session_where' ) );
+		add_action( 'save_post_session', array( $this, 'save_session_what' ) );
 		#add_action( 'add_meta_boxes_service', array( $this, 'service' ) );
 		#add_action( 'add_meta_boxes_location', array( $this, 'location' ) );
 		#add_action( 'add_meta_boxes_testimonial', array( $this, 'testimonial' ) );
@@ -57,6 +58,15 @@ class CLINIC_Post_Meta_Boxes {
         	'normal',
         	'default'
     	);	
+
+       	add_meta_box( 
+    		'session_what',
+        	esc_html__( 'What', 'clinic' ),
+        	array( $this, 'session_what_cb' ),
+        	'session',
+        	'normal',
+        	'default'
+    	);	 	
 
 	}
 
@@ -147,6 +157,47 @@ class CLINIC_Post_Meta_Boxes {
 		$session = new CLINIC_Session( $post_id );
 
 		return $this -> save_meta_inputs( $post_id, 'session_where', $inputs, $session );
+
+	}
+
+	function get_session_what_inputs() {
+
+		$services = new CLINIC_Services;
+		
+		$out = array(
+
+			'location_ids' => array(
+				'label'         => esc_html__( 'Which Services?', 'clinic' ),
+				'type'          => 'checkbox_group',
+				'options'       => $services -> get_as_kv(),
+				'sanitization_cb' => 'absint',
+			),
+
+		);
+
+		return $out;
+
+	}
+
+	function session_what_cb( $post ) {
+
+		$inputs = $this -> get_session_what_inputs();
+
+		$post = new CLINIC_Session( $post -> ID );
+
+		$out = $this -> build_meta_inputs( $post, 'session_what', $inputs );
+
+		echo $out;
+
+	}
+
+	function save_session_what( $post_id ) {
+
+		$inputs = $this -> get_session_what_inputs();
+
+		$session = new CLINIC_Session( $post_id );
+
+		return $this -> save_meta_inputs( $post_id, 'session_what', $inputs, $session );
 
 	}	
 

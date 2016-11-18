@@ -70,12 +70,25 @@ class CLINIC_Session extends CLINIC_Post {
 
 	}
 
-	function get_timeline( $format = FALSE ) {
+	function get_timeline( $timestamp = FALSE, $format = FALSE ) {
+
+		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
 
 		if( ! $format ) { $format = get_option( 'time_format' ); }
 
 		$start_time = $this -> get_start_time( $format );
+		if( $timestamp ) {
+			if( $this -> starts_days_before( $timestamp ) ) {
+				$start_time = "<span class='$class-left'>&#9664;</span>";
+			}
+		}
+
 		$end_time   = $this -> get_end_time( $format );
+		if( $timestamp ) {
+			if( $this -> ends_days_ahead( $timestamp ) ) {
+				$end_time = "<span class='$class-right'>&#9654;</span>";
+			}
+		}
 
 		if( ! empty( $start_time ) && ! empty( $end_time ) ) {
 			$out = sprintf( __( '%s - %s', 'clinic' ), $start_time, $end_time );
@@ -141,6 +154,66 @@ class CLINIC_Session extends CLINIC_Post {
 
 		return $ids;
 
+	}	
+
+	function starts_days_before( $timestamp ) {
+
+		$start_day_ts = $this -> get_start_day_timestamp();
+
+		if( $start_day_ts < $timestamp ) { return TRUE; }
+
+		return FALSE;
+
+	}
+
+	function ends_days_ahead( $timestamp ) {
+
+		$end_day_ts = $this -> get_end_day_timestamp();
+
+		if( $end_day_ts > $timestamp ) { return TRUE; }
+
+		return FALSE;
+
+	}
+
+
+	function get_start_day() {
+
+		$start = $this -> get_meta( 'start' );
+
+		$out = date( 'Y-m-j', $start );
+
+		return $out;
+
+	}
+
+	function get_end_day() {
+
+		$end = $this -> get_meta( 'end' );
+
+		$out = date( 'Y-m-j', $end );
+
+		return $out;
+
+	}
+
+	function get_start_day_timestamp() {
+
+		$start_day = $this -> get_start_day();
+
+		$out = strtotime( $start_day );
+
+		return $out;
+
+	}
+
+	function get_end_day_timestamp() {
+
+		$end_day = $this -> get_end_day();
+
+		$out = strtotime( $end_day );
+
+		return $out;
 	}	
 
 }

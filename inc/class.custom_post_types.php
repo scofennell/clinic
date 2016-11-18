@@ -59,7 +59,7 @@ class CLINIC_Post_Types {
 			'has_archive'        => TRUE,
 			'hierarchical'       => TRUE,
 			'menu_position'      => null,
-			'supports'           => array( 'title', 'thumbnail', 'excerpt' )
+			'supports'           => array( 'title', 'thumbnail' )
 		);
 
 		register_post_type( 'session', $args );

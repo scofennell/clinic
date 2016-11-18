@@ -18,9 +18,8 @@ abstract class CLINIC_Posts {
 		$this -> set_month();
 		$this -> set_day();
 		$this -> set_posts_per_page();
-		$this -> set_datetime();		
-
-
+		$this -> set_datetime();
+		$this -> set_timestamp();
 	
 	}
 
@@ -139,7 +138,8 @@ abstract class CLINIC_Posts {
 		$the_query = $this -> query();
 
 		if ( ! $the_query -> have_posts() ) { return FALSE; }
-	
+
+
 		$out = '';
 		
 		while( $the_query -> have_posts() ) {
@@ -186,6 +186,18 @@ abstract class CLINIC_Posts {
 
 	}
 
+	function get_timestamp() {
+
+		return $this -> timestamp;
+
+	}
+
+	function set_timestamp() {
+
+		$this -> timestamp = strtotime( $this -> get_datetime() );
+
+	}	
+
 	function query() {
 
 		$args = array(
@@ -195,17 +207,30 @@ abstract class CLINIC_Posts {
 		
 		if( ! empty( $this -> get_datetime() ) ) {
 
-			$start_of_day = strtotime( $this -> get_datetime() );
+			$start_of_day = $this -> get_timestamp();
 			$end_of_day   = $start_of_day + DAY_IN_SECONDS;	
 
 			$args['meta_key']   = 'start';
 			$args['orderby']    = 'meta_value_num';
 			$args['order']      = 'ASC';
 			$args['meta_query'] = array(
-				array(
-					'key'     => 'start',
-					'value'   => array( $start_of_day, $end_of_day ),
+				/*array(
+					'key'     => CLINIC . '-' . 'start',
+					'value'   => array( absint( $start_of_day ), absint( $end_of_day ) ),
+					'type'    => 'NUMERIC',
 					'compare' => 'BETWEEN',
+				),*/
+				array(
+					'key'     => CLINIC . '-' . 'start',
+					'value'   => absint( $end_of_day ),
+					'type'    => 'NUMERIC',
+					'compare' => '<',
+				),
+				array(
+					'key'     => CLINIC . '-' . 'end',
+					'value'   => absint( $start_of_day ),
+					'type'    => 'NUMERIC',
+					'compare' => '>',
 				),
 			);
 		

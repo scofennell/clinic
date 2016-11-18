@@ -60,7 +60,9 @@ class CLINIC_Calendar {
 			$myweek[] = $wp_locale->get_weekday( ( $wdcount + $week_begins ) % 7 );
 		}
 
-		$head = '';
+		$week_href = '';
+		$week_label = esc_html__( 'Wk.', 'clinic' );
+		$head = "<th class='$class-th-week'>$week_label</th>";
 
 		foreach ( $myweek as $wd ) {
 			$day_name = $initial ? $wp_locale->get_weekday_initial( $wd ) : $wp_locale->get_weekday_abbrev( $wd );
@@ -68,7 +70,11 @@ class CLINIC_Calendar {
 			$head .= "<th scope='col' title='$wd' class='$class-th'>$day_name</th>";
 		}
 
-		$body = '';
+		$week_ts = strtotime( "$thisyear-$thismonth-1" );
+		$week_number = date( 'W', $week_ts );
+		$week_href = '';
+	
+		$body = "<td class='$class-td-week'><a href=''>$week_number</td>";	
 
 		// See how much we should pad in the beginning
 		$pad = calendar_week_mod( date( 'w', $unixmonth ) - $week_begins );
@@ -80,8 +86,15 @@ class CLINIC_Calendar {
 		$daysinmonth = (int) date( 't', $unixmonth );
 
 		for ( $day = 1; $day <= $daysinmonth; ++$day ) {
+
+			$week_ts = strtotime( "$thisyear-$thismonth-$day" );
+			$week_number = date( 'W', $week_ts );
+		
 			if ( isset($newrow) && $newrow ) {
+
 				$body .= "</tr><tr class='$class-tr'>";
+				$week_href = '';
+				$body .= "<td class='$class-td-week'><a href='$week_href'>$week_number</a></td>";	
 			}
 			$newrow = false;
 
@@ -96,7 +109,8 @@ class CLINIC_Calendar {
 				$body .= "<td class='$class-td $class-td-day'>";
 			}
 			
-			$body .= $day;
+			$day_href = '';
+			$body .= "<a href='$day_href'>$day</a>";
 
 			$body .= $this -> get_for_day( $day, $thismonth, $thisyear );
 			
@@ -113,6 +127,8 @@ class CLINIC_Calendar {
 			$body .= "<td class='$class-td-pad $class-td' colspan='$pad'>&nbsp;</td>";
 		}
 
+		$navigation = $this -> get_navigation();
+
 		$out = "
 			<table class='$class'>
 				<thead class='$class-thead'>
@@ -125,11 +141,86 @@ class CLINIC_Calendar {
 					</tr>
 				</tbody>
 			</table>
+			$navigation
 		";
 
 		return $out;
 
 	}
+
+	function get_navigation() {
+
+		$title = esc_html__( 'Which Sessions?', 'clinic' );
+
+		$which_year      = $this -> get_year_nav();
+		$which_month     = $this -> get_month_nav();
+		$which_providers = $this -> get_provider_nav();
+		$which_clients   = $this -> get_client_nav();
+		$which_locations = $this -> get_location_nav();
+		$which_services  = $this -> get_service_nav();
+
+		$submit = get_submit_button( esc_html__( 'Go', 'clinic' ) );
+		
+		$out = "
+			<form>
+				<h4>$title</h4>
+				$which_year
+				$which_month
+				$which_providers
+				$which_clients
+				$which_locations
+				$which_services				
+				$submit	
+			</form>
+		";
+
+		return $out;
+
+	}
+
+	function get_year_nav() {
+
+		$out = 'hello';
+		return $out;
+
+	}
+
+	function get_month_nav() {
+
+		$out = 'hello';
+		return $out;
+
+	}
+
+	function get_provider_nav() {
+
+		$out = 'hello';
+		return $out;
+
+	}
+
+	function get_client_nav() {
+
+		$out = 'hello';
+		return $out;
+
+	}	
+
+	function get_location_nav() {
+
+		$out = 'hello';
+		return $out;
+
+	}		
+
+	function get_service_nav() {
+
+		$out = 'hello';
+		return $out;
+
+	}			
+
+
 
 	function get_for_day( $day, $month, $year ) {	
 

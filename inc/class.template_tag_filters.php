@@ -24,6 +24,10 @@ class CLINIC_Template_Tag_Filters {
 
 	function the_title( $in ) {
 
+		global $post;
+
+		if( $post -> post_type != 'session' ) { return $in; }
+
 		$out = $in;
 
 		if( empty( $out ) ) {
@@ -31,6 +35,8 @@ class CLINIC_Template_Tag_Filters {
 			$out = esc_html__( '(Untitled)', 'clinic' );
 
 		}
+
+
 
 		return $out;
 
