@@ -35,11 +35,12 @@ class CLINIC_Post_Columns {
 
 		$columns = array(
 			'cb'        => '<input type="checkbox">',
-			'title'     => esc_html__( 'Title', 'clinic' ),
 			'start'     => esc_html__( 'Start', 'clinic' ),
 			'end'       => esc_html__( 'End', 'clinic' ),
 			'clients'   => esc_html__( 'Clients', 'clinic' ),
 			'providers' => esc_html__( 'Providers', 'clinic' ),
+			'locations' => esc_html__( 'Locations', 'clinic' ),
+			'services'  => esc_html__( 'Services', 'clinic' ),			
 		);
 
 		return $columns;
@@ -54,19 +55,27 @@ class CLINIC_Post_Columns {
 
 		if( $column == 'start' ) {
 
-			echo $session -> get_meta( 'start' );
+			echo $session -> get_start_datetime();
 
 		} elseif( $column == 'end' ) {
 
-			echo $session -> get_meta( 'end' );
+			echo $session -> get_end_datetime();
 
 		} elseif( $column == 'clients' ) {
 
-			echo 'clients';
+			echo $session -> get_meta_as_list( 'client_ids', 'display_name', 'get_userdata', 'get_edit_user_link', 'comma' );
 
 		} elseif( $column == 'providers' ) {
 
-			echo 'providers';
+			echo $session -> get_meta_as_list( 'provider_ids', 'display_name', 'get_userdata', 'get_edit_user_link', 'comma' );
+
+		} elseif( $column == 'locations' ) {
+
+			echo $session -> get_meta_as_list( 'location_ids', 'post_title', 'get_post', 'get_edit_post_link', 'comma' );
+
+		} elseif( $column == 'services' ) {
+
+			echo $session -> get_meta_as_list( 'service_ids', 'post_title', 'get_post', 'get_edit_post_link', 'comma' );
 
 		}
 
@@ -78,6 +87,8 @@ class CLINIC_Post_Columns {
 		$columns['end']       = 'end';
 		$columns['clients']   = 'clients';
 		$columns['providers'] = 'providers';
+		$columns['locations'] = 'locations';
+		$columns['services']  = 'services';		
 
 		return $columns;
 	
@@ -90,18 +101,28 @@ class CLINIC_Post_Columns {
 	/* Sorts the movies. */
 	function sort_columns( $vars ) {
 
-		/* Check if we're viewing the 'movie' post type. */
+		/* Check if we're viewing the 'session' post type. */
 		if ( ! isset( $vars['post_type'] ) ) { return $vars; }
 		if( $vars['post_type'] != 'session' ) { return $vars; }
-		if ( ! isset( $vars['orderby'] ) ) { return $vars; }
+		if( ! isset( $vars['orderby'] ) ) { return $vars; }		
 
-		if( $vars['orderby'] == 'start') {
+		if( $vars['orderby'] == 'menu_order title' ) {
+
+			$vars = array_merge(
+				$vars,
+				array(
+					'meta_key' => CLINIC . '-start',
+					'orderby'  => 'meta_value_num'
+				)
+			);
+
+		} elseif( $vars['orderby'] == 'start' ) {
 
 			/* Merge the query vars with our custom variables. */
 			$vars = array_merge(
 				$vars,
 				array(
-					'meta_key' => 'start',
+					'meta_key' => CLINIC . '-start',
 					'orderby'  => 'meta_value_num'
 				)
 			);
@@ -112,10 +133,30 @@ class CLINIC_Post_Columns {
 			$vars = array_merge(
 				$vars,
 				array(
-					'meta_key' => 'end',
+					'meta_key' => CLINIC . '-end',
 					'orderby'  => 'meta_value_num'
 				)
 			);
+
+		} elseif( $vars['orderby'] == 'clients') {
+
+			/* Merge the query vars with our custom variables. */
+			$vars = FALSE;
+	
+		} elseif ( $vars['orderby'] == 'providers' ) {
+
+			/* Merge the query vars with our custom variables. */
+			$vars = FALSE;
+
+		} elseif( $vars['orderby'] == 'locations') {
+
+			/* Merge the query vars with our custom variables. */
+			$vars = FALSE;
+	
+		} elseif ( $vars['orderby'] == 'services' ) {
+
+			/* Merge the query vars with our custom variables. */
+			$vars = FALSE;
 
 		}
 

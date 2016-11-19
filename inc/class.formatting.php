@@ -16,7 +16,7 @@ class CLINIC_Formatting {
 
 	}
 
-	function array_to_comma_sep( $label, $href_cb ) {
+	function array_to_comma_sep( $label, $href_cb, $before_last = 'and' ) {
 
 		$in  = $this -> in;
 		$out = '';
@@ -28,12 +28,28 @@ class CLINIC_Formatting {
 		foreach( $in as $k => $v ) {
 
 			$i++;
-			$href = esc_url( call_user_func( $href_cb, $k ) );
-			$out .= "<a href='$href'>" . $v -> $label . '</a>';
+
+			if( ! empty( $href_cb ) ) {
+				$href = esc_url( call_user_func( $href_cb, $k ) );
+				$out .= "<a href='$href'>" . $v -> $label . '</a>';
+			} else {
+				$out .= $v -> $label;	
+			}
+
 			if( $i < ( $count - 1 ) ) {
 				$out .= esc_html__( ', ', 'clinic' );
 			} elseif( $i < $count ) {
-				$out .= esc_html__( ' and ', 'clinic' );	
+
+				if( $before_last == 'and' ) {
+
+					$out .= esc_html__( ' and ', 'clinic' );	
+	
+				} elseif( $before_last == 'comma' ) {
+					
+					$out .= esc_html__( ', ', 'clinic' );	
+	
+				}
+
 			}
 
 		}

@@ -38,7 +38,7 @@ class CLINIC_Session extends CLINIC_Post {
 
 	}
 
-	function get_start_time( $format = FALSE ) {
+	function get_start_time( $format = FALSE, $wrap = TRUE ) {
 
 		if( ! $format ) { $format = get_option( 'time_format' ); }
 
@@ -48,13 +48,17 @@ class CLINIC_Session extends CLINIC_Post {
 
 		$out = date( $format, $start );
 
-		$out = "<time>$out</time>";
+		if( $wrap ) {
+
+			$out = "<time>$out</time>";
+
+		}
 
 		return $out;
 
 	}
 
-	function get_end_time( $format = FALSE ) {
+	function get_end_time( $format = FALSE, $wrap = TRUE ) {
 
 		if( ! $format ) { $format = get_option( 'time_format' ); }
 		
@@ -63,12 +67,84 @@ class CLINIC_Session extends CLINIC_Post {
 		if( empty( $end ) ) { return FALSE; }
 
 		$out = date( $format, $end );
+		
+		if( $wrap ) {
+
+			$out = "<time>$out</time>";
+
+		}
+
+		return $out;
+
+	}
+
+	function get_start_date( $format = FALSE, $wrap = TRUE ) {
+
+		if( ! $format ) { $format = get_option( 'date_format' ); }
+
+		$start = absint( $this -> get_meta( 'start' ) );
+
+		if( empty( $start ) ) { return FALSE; }
+
+		$out = date( $format, $start );
+
+		if( $wrap ) {
+
+			$out = "<time>$out</time>";
+
+		}
+
+		return $out;
+
+	}
+
+	function get_end_date( $format = FALSE, $wrap = TRUE ) {
+
+		if( ! $format ) { $format = get_option( 'date_format' ); }
+		
+		$end = absint( $this -> get_meta( 'end' ) );
+
+		if( empty( $end ) ) { return FALSE; }
+
+		$out = date( $format, $end );
+
+		if( $wrap ) {
+
+			$out = "<time>$out</time>";
+
+		}
+
+		return $out;
+
+	}
+
+	function get_start_datetime( $date_format = FALSE, $time_format = FALSE ) {
+
+		if( ! $date_format ) { $date_format = get_option( 'date_format' ); }
+		if( ! $time_format ) { $time_format = get_option( 'time_format' ); }
+		$start = absint( $this -> get_meta( 'start' ) );
+		if( empty( $start ) ) { return FALSE; }
+		$out = date( "$date_format $time_format", $start );
 
 		$out = "<time>$out</time>";
 
 		return $out;
 
 	}
+
+	function get_end_datetime( $date_format = FALSE, $time_format = FALSE ) {
+
+		if( ! $date_format ) { $date_format = get_option( 'date_format' ); }
+		if( ! $time_format ) { $time_format = get_option( 'time_format' ); }
+		$end = absint( $this -> get_meta( 'end' ) );
+		if( empty( $end ) ) { return FALSE; }
+		$out = date( "$date_format $time_format", $end );
+
+		$out = "<time>$out</time>";
+
+		return $out;
+
+	}	
 
 	function get_timeline( $timestamp = FALSE, $format = FALSE ) {
 
@@ -93,7 +169,7 @@ class CLINIC_Session extends CLINIC_Post {
 		}
 
 		if( ! $starts_days_before && ! $ends_days_ahead ) {
-			$out = sprintf( __( '%s - %s:', 'clinic' ), $start_time, $end_time );
+			$out = sprintf( __( '%s - %s', 'clinic' ), $start_time, $end_time );
 		} elseif( $starts_days_before || $ends_days_ahead ) {
 			$out = "$start_time $end_time";
 		} else {
@@ -262,6 +338,24 @@ class CLINIC_Session extends CLINIC_Post {
 
 		return $details;
 
+	}
+
+	function get_keywords() {
+
+		$out = '';
+
+		$array = array();
+
+		$array[]= $this -> get_start_date( 'F', FALSE );
+		$array[]= $this -> get_meta_as_list( 'client_ids', 'display_name', 'get_userdata' );
+		$array[]= $this -> get_meta_as_list( 'provider_ids', 'display_name', 'get_userdata' );
+		$array[]= $this -> get_meta_as_list( 'location_ids', 'post_title', 'get_post' );
+		$array[]= $this -> get_meta_as_list( 'service_ids', 'post_title', 'get_post' );	
+
+		$out = implode( ' | ', $array );
+
+		return $out;
+		
 	}
 
 }

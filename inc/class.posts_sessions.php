@@ -47,16 +47,21 @@ class CLINIC_Sessions extends CLINIC_Posts {
 			if( $session -> ends_days_ahead( $timestamp ) ) {
 				$maybe_ends_days_ahead = 'ends_days_ahead';
 			}			
-
-			$post_title = get_the_title();
 			
 			$details = $session -> get_details();
+
+			$toggle = '';
+			if( ! empty( $details ) ) {
+				$toggle = "<a class='$shows_hides' href='#'>&#9661;</a>";
+			}
 
 			$permalink  = esc_url( get_edit_post_link() );
 			$out .= "
 				<li class='$show_hide $class-li $class-li-$maybe_starts_days_before $class-li-$maybe_ends_days_ahead'>
-					$timeline
-					<h4 class='$class-title'><a href='$permalink'>$post_title</a><a class='$shows_hides' href='#'>&#9661;</a></h4>
+					<h4 class='$class-title'>
+						<a href='$permalink'>$timeline</a>
+						$toggle
+					</h4>
 					$details
 				</li>
 			";

@@ -66,7 +66,7 @@ abstract class CLINIC_Post {
 
 	}
 
-	function get_meta_as_list( $key, $label, $obj_cb, $href_cb ) {
+	function get_meta_as_list( $key, $label, $obj_cb, $href_cb, $before_last = 'and' ) {
 	
 		$meta = $this -> get_meta_as_objects( $key, $obj_cb );
 
@@ -74,7 +74,7 @@ abstract class CLINIC_Post {
 
 		$formatting = new CLINIC_Formatting( $meta );
 
-		$out = $formatting -> array_to_comma_sep( $label, $href_cb );
+		$out = $formatting -> array_to_comma_sep( $label, $href_cb, $before_last );
 
 		return $out;
 
