@@ -13,7 +13,8 @@ function clinic_list_table_init() {
 	new CLINIC_List_Table;
 
 }
-//add_action( 'plugins_loaded', 'clinic_list_table_init', 110 ); 
+//add_action( 'plugins_loaded', 'clinic_list_table_init', 110 );
+add_action( 'current_screen', 'clinic_list_table_init', 110 ); 
 
 class CLINIC_List_Table {
 
@@ -25,53 +26,91 @@ class CLINIC_List_Table {
 
 		add_filter( 'parse_query', array( $this, 'posts_filter' ) );
 	
+		$screen = get_current_screen();
+		$this -> post_type = $screen -> post_type;
+		$this -> base = $screen -> base;
 
+		$this -> set_provider_id();
+
+
+	}
+
+	function set_provider_id() {
+
+		if( ! isset( $_GET[ CLINIC . '-provider_id'] ) ) { return FALSE; }
+
+		$provider_id = absint( $_GET[ CLINIC . '-provider_id'] );
+
+		if( empty( $provider_id ) ) { return FALSE; }
+
+		$this -> provider_id = $provider_id;
 
 	}
 
 	function remove_date_drop() {
 
-		$screen = get_current_screen();
+		if ( $this -> post_type != 'session' ) { return FALSE; }
 
-		#wp_die( 30 );
+    	add_filter( 'months_dropdown_results', array( $this, 'months_dropdown_results' ) );
 
-	    //if ( 'page' == $screen->post_type ){
-    	    add_filter( 'months_dropdown_results', '__return_empty_array' );
-    	//}
+	}
+
+	function months_dropdown_results( $in ) {
+
+		if ( $this -> post_type != 'session' ) { return $in; }
+
+		return array();
 
 	}
 
 
+	function restrict_manage_posts() {
 
+		if ( $this -> post_type != 'session' ) { return FALSE; }
 
-	function restrict_manage_posts(){
+		$providers = new CLINIC_Providers;
 
-	        $values = array(
-	            'label' => 'value', 
-	            'label1' => 'value1',
-	            'label2' => 'value2',
-	        );
-	        ?>
-	        <select name="ADMIN_FILTER_FIELD_VALUE">
-	        <option value=""><?php _e('Filter By ', 'wose45436'); ?></option>
-	        <option value=""><?php _e('Hello', 'wose45436'); ?></option>
-	        </select>
-	        <?php
-	    
+		$role_label = $providers -> get_role_label();
+		$default  = sprintf( esc_html__( 'Select a %s', 'clinic' ), $role_label );
+		$out  = "<option value=''>$default</option>";
+
+		$out .= $providers -> get_as_options( $this -> provider_id );
+
+		$name = CLINIC . '-provider_id';
+
+		$out = "<select name='$name'>$out</select>";
+
+		echo $out;
 
 	}
 
 
-	function posts_filter( $query ){
-	    global $pagenow;
-	    $type = 'post';
-	    if (isset($_GET['post_type'])) {
-	        $type = $_GET['post_type'];
-	    }
-	    if ( 'POST_TYPE' == $type && is_admin() && $pagenow=='edit.php' && isset($_GET['ADMIN_FILTER_FIELD_VALUE']) && $_GET['ADMIN_FILTER_FIELD_VALUE'] != '') {
-	        $query->query_vars['meta_key'] = 'META_KEY';
-	        $query->query_vars['meta_value'] = $_GET['ADMIN_FILTER_FIELD_VALUE'];
-	    }
+	function posts_filter( $query ) {
+
+		if( ! is_admin() ) { return $query; }
+		if ( $this -> post_type != 'session' ) { return $query; }
+		if ( $this -> base != 'edit' ) { return $query; }
+
+		if( empty( $this -> provider_id ) ) { return $query; }
+
+		/*$mq = array(
+			array(
+				'key'     => CLINIC . '-' . 'provider_idsaaa',
+				'value'   => $this -> provider_id,
+				'compare' => 'LIKE',
+			),
+		);*/
+
+
+		#$query -> query_vars['meta_query'] = $mq;
+		#$query -> meta_query = $mq;
+
+		$query -> query_vars['meta_key']     = CLINIC . '-' . 'provider_ids';
+		$query -> query_vars['meta_value']   = 'i:' . $this -> provider_id . ';';
+		$query -> query_vars['meta_compare'] = 'LIKE';
+
+	    return $query;
+
 	}
 
 
