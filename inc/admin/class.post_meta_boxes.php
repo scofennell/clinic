@@ -20,9 +20,9 @@ class CLINIC_Post_Meta_Boxes {
 	function __construct() {
 
 		add_action( 'add_meta_boxes_session', array( $this, 'session' ) );
-		add_action( 'save_post_session', array( $this, 'save_session_who' ) );
-		add_action( 'save_post_session', array( $this, 'save_session_when' ) );
 		add_action( 'save_post_session', array( $this, 'save_session_where' ) );
+		add_action( 'save_post_session', array( $this, 'save_session_when' ) );
+		add_action( 'save_post_session', array( $this, 'save_session_who' ) );
 		add_action( 'save_post_session', array( $this, 'save_session_what' ) );
 		#add_action( 'add_meta_boxes_service', array( $this, 'service' ) );
 		#add_action( 'add_meta_boxes_location', array( $this, 'location' ) );
@@ -263,11 +263,7 @@ class CLINIC_Post_Meta_Boxes {
 			if( DOING_AUTOSAVE ) { return $post_id; }
 		}
 
-		$get_post_custom = get_post_custom( $post_id );
-
 		foreach( $inputs as $input_slug => $input ) {
-
-			$old_value = $get_post_custom[ $input_slug ];
 
 			if( ! isset( $_POST[ $input_slug ] ) ) {
 				$post -> delete_meta( $input_slug );
@@ -284,7 +280,6 @@ class CLINIC_Post_Meta_Boxes {
 
 					$new_value = call_user_func( $input['sanitization_cb'], $_POST[ $input_slug ] );
 
-
 				} else {
 
 					$new_value = array_map( $input['sanitization_cb'], $_POST[ $input_slug ] );
@@ -293,28 +288,56 @@ class CLINIC_Post_Meta_Boxes {
 			
 			}
 
-			if( $old_value === $new_value ) { continue; }
+			$old_value = $post -> get_meta( $input_slug );
 
-			if( empty( $new_value ) ) {
-				$post -> delete_meta( $input_slug );
-				continue;
-			}
+			if( is_array( $new_value ) ) {
 
-			/*wp_die(
-				var_dump(
-					array(
-						$post_id,
-						$meta_box_slug,
-						$new_value,
-						$old_value,
-						$get_post_custom,
-						$inputs,
-						$_POST,
+				$old_value = $post -> get_meta( $input_slug, FALSE );
+
+				/*wp_die(
+					var_dump(
+						array(
+							$post_id,
+							$meta_box_slug,
+							$new_value,
+							$old_value,
+							$inputs,
+							$_POST,
+							#$update,
+						)
 					)
-				)
-			);*/
+				);*/
 
-			$post -> update_meta( $input_slug, $new_value );
+				foreach( $new_value as $val ) {
+
+					if( ! in_array( $val, $old_value ) ) {
+						$add = $post -> add_meta( $input_slug, $val, FALSE );
+					}
+
+				}
+
+				foreach( $old_value as $old_val ) {
+
+					if( ! in_array( $old_val, $new_value ) ) {
+						$delete = $post -> delete_meta( $input_slug, $old_val );
+					}
+
+				}
+
+			} else {
+
+				$old_value = $post -> get_meta( $input_slug );
+
+				if( $old_value === $new_value ) { continue; }
+
+				if( empty( $new_value ) ) {
+					$delete = $post -> delete_meta( $input_slug );
+					continue;
+				}
+
+				$update = $post -> update_meta( $input_slug, $new_value );
+
+			}
 
 		}
 
@@ -343,7 +366,11 @@ class CLINIC_Post_Meta_Boxes {
 		$label = esc_html( $input['label'] );
 		$name  = esc_attr( $input_slug );
 		$type  = esc_attr( $input['type'] );
-		$value = $post -> get_meta( $input_slug );
+		if( $type == 'checkbox_group' ) {
+			$value = $post -> get_meta( $input_slug, FALSE );
+		} else {
+			$value = $post -> get_meta( $input_slug );	
+		}
 
 		$options = '';
 		if( isset( $input['options'] ) ) {

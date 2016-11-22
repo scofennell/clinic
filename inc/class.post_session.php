@@ -222,7 +222,7 @@ class CLINIC_Session extends CLINIC_Post {
 
 	function get_client_ids() {
 
-		$ids = $this -> get_meta( 'client_ids' );
+		$ids = $this -> get_meta( 'client_ids', FALSE );
 
 		return $ids;
 
@@ -230,7 +230,7 @@ class CLINIC_Session extends CLINIC_Post {
 
 	function get_provider_ids() {
 
-		$ids = $this -> get_meta( 'provider_ids' );	
+		$ids = $this -> get_meta( 'provider_ids', FALSE );	
 
 		return $ids;
 

@@ -65,7 +65,7 @@ class CLINIC_Calendar {
 		$head = "<th class='$class-th-week'>$week_label</th>";
 
 		foreach ( $myweek as $wd ) {
-			$day_name = $initial ? $wp_locale->get_weekday_initial( $wd ) : $wp_locale->get_weekday_abbrev( $wd );
+			$day_name = $initial ? $wp_locale -> get_weekday_initial( $wd ) : $wp_locale -> get_weekday_abbrev( $wd );
 			$wd = esc_attr( $wd );
 			$head .= "<th scope='col' title='$wd' class='$class-th'>$day_name</th>";
 		}

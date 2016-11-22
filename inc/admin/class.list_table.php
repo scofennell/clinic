@@ -20,6 +20,8 @@ class CLINIC_List_Table {
 
 	function __construct() {
 
+		$this -> set_provider_id();
+
 		add_action( 'admin_head', array( $this, 'remove_date_drop' ) );
 
 		add_action( 'restrict_manage_posts', array( $this, 'restrict_manage_posts' ) );
@@ -30,18 +32,17 @@ class CLINIC_List_Table {
 		$this -> post_type = $screen -> post_type;
 		$this -> base = $screen -> base;
 
-		$this -> set_provider_id();
-
-
 	}
 
 	function set_provider_id() {
 
-		if( ! isset( $_GET[ CLINIC . '-provider_id'] ) ) { return FALSE; }
+		$provider_id = FALSE;
 
-		$provider_id = absint( $_GET[ CLINIC . '-provider_id'] );
+		if( isset( $_GET[ CLINIC . '-provider_id'] ) ) {
 
-		if( empty( $provider_id ) ) { return FALSE; }
+			$provider_id = absint( $_GET[ CLINIC . '-provider_id'] );
+
+		}
 
 		$this -> provider_id = $provider_id;
 
@@ -106,8 +107,8 @@ class CLINIC_List_Table {
 		#$query -> meta_query = $mq;
 
 		$query -> query_vars['meta_key']     = CLINIC . '-' . 'provider_ids';
-		$query -> query_vars['meta_value']   = 'i:' . $this -> provider_id . ';';
-		$query -> query_vars['meta_compare'] = 'LIKE';
+		$query -> query_vars['meta_value']   = $this -> provider_id;
+		#$query -> query_vars['meta_compare'] = 'IN';
 
 	    return $query;
 

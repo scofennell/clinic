@@ -30,21 +30,45 @@ abstract class CLINIC_Post {
 		return 'hello';
 	}
 
-	function get_meta( $key ) {
+	function add_meta( $key, $new_value, $unique = TRUE ) {
 
-		return get_post_meta( $this -> post_id, CLINIC . '-' . $key, TRUE );
-
-	}
-
-	function delete_meta( $key ) {
-
-		return delete_post_meta( $this -> post_id, CLINIC . '-' . $key );
+		return add_post_meta( $this -> post_id, CLINIC . '-' . $key, $new_value, $unique );
 
 	}
 
-	function update_meta( $key, $new_value ) {
+	function get_meta( $key, $single = TRUE ) {
 
-		return update_post_meta( $this -> post_id, CLINIC . '-' . $key, $new_value );
+		return get_post_meta( $this -> post_id, CLINIC . '-' . $key, $single );
+
+	}
+
+	function delete_meta( $key, $prev_value = NULL ) {
+
+		if( is_null( $prev_value ) ) {
+
+			return delete_post_meta( $this -> post_id, CLINIC . '-' . $key );
+
+		} else {
+
+			return delete_post_meta( $this -> post_id, CLINIC . '-' . $key, $prev_value );
+
+		}
+
+	}
+
+	function update_meta( $key, $new_value, $prev_value = NULL ) {
+
+		if( is_null( $prev_value ) ) {
+
+			$out = update_post_meta( $this -> post_id, CLINIC . '-' . $key, $new_value );
+
+		} else {
+
+			$out = update_post_meta( $this -> post_id, CLINIC . '-' . $key, $new_value, $prev_value );
+
+		}
+
+		return $out;
 
 	}		
 
@@ -52,7 +76,7 @@ abstract class CLINIC_Post {
 	
 		$out = array();
 
-		$meta = $this -> get_meta( $key );
+		$meta = $this -> get_meta( $key, FALSE );
 
 		if( ! is_array( $meta ) ) { return FALSE; }
 
@@ -66,7 +90,7 @@ abstract class CLINIC_Post {
 
 	}
 
-	function get_meta_as_list( $key, $label, $obj_cb, $href_cb, $before_last = 'and' ) {
+	function get_meta_as_list( $key, $label, $obj_cb, $href_cb = FALSE, $before_last = 'and' ) {
 	
 		$meta = $this -> get_meta_as_objects( $key, $obj_cb );
 

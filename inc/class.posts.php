@@ -204,13 +204,12 @@ abstract class CLINIC_Posts {
 			'post_type'      => $this -> get_post_type(),
 			'posts_per_page' => $this -> get_posts_per_page(),
 		);
-		
+
 		if( ! empty( $this -> get_datetime() ) ) {
 
 			$start_of_day = $this -> get_timestamp();
 			$end_of_day   = $start_of_day + DAY_IN_SECONDS;	
 
-			$args['meta_key']   = 'start';
 			$args['orderby']    = 'meta_value_num';
 			$args['order']      = 'ASC';
 			$args['meta_query'] = array(
@@ -233,10 +232,23 @@ abstract class CLINIC_Posts {
 					'compare' => '>',
 				),
 			);
-		
+
 		}
 
-		return new WP_Query( $args );
+		$out = new WP_Query( $args );
+
+		/*if( $this -> day == 20 ) {
+			wp_die(
+				var_dump(
+
+					$args,
+					$out
+
+				)
+			);
+		}*/
+
+		return $out;
 
 	}	
 
