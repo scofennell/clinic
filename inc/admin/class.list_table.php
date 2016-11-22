@@ -21,6 +21,8 @@ class CLINIC_List_Table {
 	function __construct() {
 
 		$this -> set_provider_id();
+		$this -> set_start();
+		$this -> set_end();
 
 		add_action( 'admin_head', array( $this, 'remove_date_drop' ) );
 
@@ -47,6 +49,34 @@ class CLINIC_List_Table {
 		$this -> provider_id = $provider_id;
 
 	}
+
+	function set_start() {
+
+		$start = FALSE;
+
+		if( isset(  $_GET[ CLINIC . '-start' ] ) ) {
+
+			$start = absint(  $_GET[ CLINIC . '-start' ] );
+
+		}
+
+		$this -> start = $start;
+
+	}
+
+	function set_end() {
+
+		$end = FALSE;
+
+		if( isset(  $_GET[ CLINIC . '-end'] ) ) {
+
+			$end = absint( $_GET[ CLINIC . '-end' ] );
+
+		}
+
+		$this -> end = $end;
+
+	}	
 
 	function remove_date_drop() {
 
@@ -92,7 +122,46 @@ class CLINIC_List_Table {
 		if ( $this -> post_type != 'session' ) { return $query; }
 		if ( $this -> base != 'edit' ) { return $query; }
 
-		if( empty( $this -> provider_id ) ) { return $query; }
+		if( ! empty( $this -> provider_id ) ) {
+
+			$query -> query_vars['meta_key']     = CLINIC . '-' . 'provider_ids';
+			$query -> query_vars['meta_value']   = $this -> provider_id;
+
+		}
+
+		if( $this -> start && $this -> end ) {
+
+			//week 44:
+			//1477 958400
+			//1478 563199
+
+			//post 105:
+			//1479 764700
+			//1479 768300
+
+
+			#$query -> query_vars['meta_key']   = CLINIC . '-' . 'start';
+			#$query -> query_vars['meta_value'] = $this -> start;
+			#$query -> query_vars['meta_compare']    = '>';
+
+			$query -> query_vars['meta_query'] = array(
+				array(
+					'key'     => CLINIC . '-' . 'start',
+					'value'   => absint( $this -> end ),
+					'type'    => 'NUMERIC',
+					'compare' => '<',
+				),
+				array(
+					'key'     => CLINIC . '-' . 'end',
+					'value'   => absint( $this -> start ),
+					'type'    => 'NUMERIC',
+					'compare' => '>',
+				),
+			);
+
+
+		}
+
 
 		/*$mq = array(
 			array(
@@ -106,8 +175,6 @@ class CLINIC_List_Table {
 		#$query -> query_vars['meta_query'] = $mq;
 		#$query -> meta_query = $mq;
 
-		$query -> query_vars['meta_key']     = CLINIC . '-' . 'provider_ids';
-		$query -> query_vars['meta_value']   = $this -> provider_id;
 		#$query -> query_vars['meta_compare'] = 'IN';
 
 	    return $query;

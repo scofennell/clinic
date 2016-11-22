@@ -60,7 +60,6 @@ class CLINIC_Calendar {
 			$myweek[] = $wp_locale->get_weekday( ( $wdcount + $week_begins ) % 7 );
 		}
 
-		$week_href = '';
 		$week_label = esc_html__( 'Wk.', 'clinic' );
 		$head = "<th class='$class-th-week'>$week_label</th>";
 
@@ -72,9 +71,9 @@ class CLINIC_Calendar {
 
 		$week_ts = strtotime( "$thisyear-$thismonth-1" );
 		$week_number = date( 'W', $week_ts );
-		$week_href = '';
+		$week_href = $this -> get_week_href( $week_ts );
 	
-		$body = "<td class='$class-td-week'><a href=''>$week_number</td>";	
+		$body = "<td class='$class-td-week'><a href='$week_href'>$week_number</td>";	
 
 		// See how much we should pad in the beginning
 		$pad = calendar_week_mod( date( 'w', $unixmonth ) - $week_begins );
@@ -87,13 +86,16 @@ class CLINIC_Calendar {
 
 		for ( $day = 1; $day <= $daysinmonth; ++$day ) {
 
-			$week_ts = strtotime( "$thisyear-$thismonth-$day" );
-			$week_number = date( 'W', $week_ts );
-		
+			$day_ts = strtotime( "$thisyear-$thismonth-$day" );
+
+
 			if ( isset($newrow) && $newrow ) {
 
+				$week_number = date( 'W', $week_ts );
+				$week_href = $this -> get_week_href( $day_ts );
+
+
 				$body .= "</tr><tr class='$class-tr'>";
-				$week_href = '';
 				$body .= "<td class='$class-td-week'><a href='$week_href'>$week_number</a></td>";	
 			}
 			$newrow = false;
@@ -109,7 +111,7 @@ class CLINIC_Calendar {
 				$body .= "<td class='$class-td $class-td-day'>";
 			}
 			
-			$day_href = '';
+			$day_href = $this -> get_day_href( $day_ts );
 			$body .= "<a class='$class-date' href='$day_href'>$day</a>";
 
 			$body .= $this -> get_for_day( $day, $thismonth, $thisyear );
@@ -243,6 +245,44 @@ class CLINIC_Calendar {
 			$view_all = sprintf( esc_html__( '&hellip; view all %d sessions', 'clinic' ), $found_posts );
 			$out .= "<div><a href='$href'><i>$view_all</i></a></div>";
 		}
+
+		return $out;
+
+	}
+
+	function get_week_href( $week_ts ) {
+
+		$base = admin_url( '/edit.php' );
+		$out = add_query_arg( array( 'post_type' => 'session' ), $base );
+
+		/*$start_year = date( 'Y', $week_ts );
+		$out = add_query_arg( array( 'start_year' => $start_year ), $out );
+
+		$start_week = date( 'W', $week_ts );
+		$out = add_query_arg( array( 'start_week' => $start_week ), $out );*/
+
+		$out = add_query_arg( array( CLINIC . '-start' => $week_ts, CLINIC . '-end' => $week_ts + WEEK_IN_SECONDS - 1 ), $out );
+
+		return $out;
+
+	}
+
+
+	function get_day_href( $day_ts ) {
+
+		$base = admin_url( '/edit.php' );
+		$out = add_query_arg( array( 'post_type' => 'session' ), $base );
+
+		/*$start_year = date( 'Y', $day_ts );
+		$out = add_query_arg( array( 'start_year' => $start_year ), $out );
+
+		$start_month = date( 'm', $day_ts );
+		$out = add_query_arg( array( 'start_month' => $start_month ), $out );
+
+		$start_day = date( 'j', $day_ts );
+		$out = add_query_arg( array( 'start_day' => $start_day ), $out );*/
+
+		$out = add_query_arg( array( CLINIC . '-start' => $day_ts, CLINIC . '-end' => $day_ts + DAY_IN_SECONDS - 1 ), $out );
 
 		return $out;
 
