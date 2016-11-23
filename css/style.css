@@ -1,44 +1,44 @@
 
 
 
-.clinic-get_calendar {
+.clinic-get_month {
 	width: 100%;
 	font-size: 85%;
 }
 
-.clinic-get_calendar-th,
-.clinic-get_calendar-td {
+.clinic-get_month-th,
+.clinic-get_month-td {
 	padding: .5em;
 	vertical-align: top;
 	width: 14%;
 }
 
-.clinic-get_calendar-th-week,
-.clinic-get_calendar-td-week {
+.clinic-get_month-th-week,
+.clinic-get_month-td-week {
 	width: 2%;
 	border: none;
 }
 
-.clinic-get_calendar-th {
+.clinic-get_month-th {
 	border-bottom: 2px solid #000;
 }
 
-.clinic-get_calendar-th-week,
-.clinic-get_calendar-td-week {
+.clinic-get_month-th-week,
+.clinic-get_month-td-week {
 	font-weight: normal;
 	font-style: italic;
 	font-size: 80%;
 }
 
-.clinic-get_calendar-td-week {
+.clinic-get_month-td-week {
 
 }
 
-.clinic-get_calendar-td {
+.clinic-get_month-td {
 	border-bottom: 1px dotted #000;
 }
 
-.clinic-get_calendar-td-pad {
+.clinic-get_month-td-pad {
 	background-color: #eee;
 	background-image: linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white), 
 	linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white);
@@ -46,15 +46,15 @@
 	background-position:0 0, 4px 4px
 }
 
-.clinic-get_calendar-td-day:nth-child( even ) {
+.clinic-get_month-td-day:nth-child( even ) {
 	background: rgba( 0, 0, 0, .1 );
 }
 
-.clinic-get_calendar-tr:last-child .clinic-get_calendar-td {
+.clinic-get_month-tr:last-child .clinic-get_month-td {
 	border-bottom: none;
 }
 
-.clinic-get_calendar-date {
+.clinic-get_month-date {
 	text-decoration: none;
 	font-weight: 600;
 }

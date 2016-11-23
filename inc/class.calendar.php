@@ -12,6 +12,26 @@ class CLINIC_Calendar {
 
 	function __construct() {
 
+		$this -> set_view();
+
+	}
+
+	function set_view() {
+
+		$view = 'month';
+
+		if( isset( $_GET['view'] ) ) {
+
+			if( ! empty( $_GET['view'] ) ) {
+
+				$view = sanitize_text_field( $_GET['view'] );
+
+			}
+
+		}
+
+		$this -> view = $view;
+
 	}
 
 	function the_page() {
@@ -22,9 +42,19 @@ class CLINIC_Calendar {
 
 	function get_page() {
 
-		$out = '';
+		if( $this -> view == 'day' ) {
 
-		$out = $this -> get_calendar();
+			$out = $this -> get_day();
+
+		} elseif( $this -> view == 'week' ) {
+
+			$out = $this -> get_week();
+
+		} else {
+
+			$out = $this -> get_month();
+
+		}
 
 		$out = "
 			<div class='wrap'>
@@ -36,7 +66,19 @@ class CLINIC_Calendar {
 
 	}	
 
-	function get_calendar( $initial = true, $echo = true ) {
+	function get_day() {
+
+		return 'hello day';
+
+	}
+
+	function get_week() {
+
+		return 'hello week';
+
+	}	
+
+	function get_month( $initial = true, $echo = true ) {
 		
 		$class = sanitize_html_class( CLINIC . '-' . __FUNCTION__ );
 
@@ -71,7 +113,7 @@ class CLINIC_Calendar {
 
 		$week_ts = strtotime( "$thisyear-$thismonth-1" );
 		$week_number = date( 'W', $week_ts );
-		$week_href = $this -> get_week_href( $week_ts );
+		$week_href = $this -> get_week_href( $thisyear, $week_number );
 	
 		$body = "<td class='$class-td-week'><a href='$week_href'>$week_number</td>";	
 
@@ -92,7 +134,7 @@ class CLINIC_Calendar {
 			if ( isset($newrow) && $newrow ) {
 
 				$week_number = date( 'W', $day_ts );
-				$week_href = $this -> get_week_href( $day_ts );
+				$week_href = $this -> get_week_href( $thisyear, $week_number );
 
 
 				$body .= "</tr><tr class='$class-tr'>";
@@ -111,7 +153,7 @@ class CLINIC_Calendar {
 				$body .= "<td class='$class-td $class-td-day'>";
 			}
 			
-			$day_href = $this -> get_day_href( $day_ts );
+			$day_href = $this -> get_day_href( $thisyear, $thismonth, $day );
 			$body .= "<a class='$class-date' href='$day_href'>$day</a>";
 
 			$body .= $this -> get_for_day( $day, $thismonth, $thisyear );
@@ -250,42 +292,39 @@ class CLINIC_Calendar {
 
 	}
 
-	function get_week_href( $week_ts ) {
+	function get_base_href() {
+		
+		$out = admin_url( '/edit.php' );
+		$out = add_query_arg( array( 'post_type' => 'session' ), $out );
+		$out = add_query_arg( array( 'page' => 'calendar' ), $out );
 
-		$base = admin_url( '/edit.php' );
-		$out = add_query_arg( array( 'post_type' => 'session' ), $base );
+		return $out;
 
-		/*$start_year = date( 'Y', $week_ts );
-		$out = add_query_arg( array( 'start_year' => $start_year ), $out );
+	}
 
-		$start_week = date( 'W', $week_ts );
-		$out = add_query_arg( array( 'start_week' => $start_week ), $out );*/
+	function get_week_href( $year, $week ) {
 
-		$out = add_query_arg( array( CLINIC . '-start' => $week_ts, CLINIC . '-end' => $week_ts + WEEK_IN_SECONDS - 1 ), $out );
+		$out = $this -> get_base_href();
+		$out = add_query_arg( array( 'view' => 'week' ), $out );
+		$out = add_query_arg( array( 'year' => $year ), $out );
+		$out = add_query_arg( array( 'week' => $week ), $out );
+
+		return $out;
+
+	}
+
+	function get_day_href( $year, $month, $day ) {
+
+		$out = $this -> get_base_href();
+		$out = add_query_arg( array( 'view'  => 'day' ), $out );
+		$out = add_query_arg( array( 'year'  => $year ), $out );
+		$out = add_query_arg( array( 'month' => $month ), $out );
+		$out = add_query_arg( array( 'day'   => $day ), $out );
 
 		return $out;
 
 	}
 
 
-	function get_day_href( $day_ts ) {
-
-		$base = admin_url( '/edit.php' );
-		$out = add_query_arg( array( 'post_type' => 'session' ), $base );
-
-		/*$start_year = date( 'Y', $day_ts );
-		$out = add_query_arg( array( 'start_year' => $start_year ), $out );
-
-		$start_month = date( 'm', $day_ts );
-		$out = add_query_arg( array( 'start_month' => $start_month ), $out );
-
-		$start_day = date( 'j', $day_ts );
-		$out = add_query_arg( array( 'start_day' => $start_day ), $out );*/
-
-		$out = add_query_arg( array( CLINIC . '-start' => $day_ts, CLINIC . '-end' => $day_ts + DAY_IN_SECONDS - 1 ), $out );
-
-		return $out;
-
-	}
 
 }
