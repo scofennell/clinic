@@ -91,7 +91,7 @@ class CLINIC_Calendar {
 
 			if ( isset($newrow) && $newrow ) {
 
-				$week_number = date( 'W', $week_ts );
+				$week_number = date( 'W', $day_ts );
 				$week_href = $this -> get_week_href( $day_ts );
 
 

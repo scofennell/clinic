@@ -28,7 +28,23 @@ class CLINIC_Post_Meta_Boxes {
 		#add_action( 'add_meta_boxes_location', array( $this, 'location' ) );
 		#add_action( 'add_meta_boxes_testimonial', array( $this, 'testimonial' ) );
 
+		add_filter( 'gettext', array( $this, 'change_publish_button' ), 10, 2 );
+
 	}
+
+
+	function change_publish_button( $translation, $text ) {
+
+		if( ! is_admin() ) { return $translation; }
+
+		if ( $text == 'Publish' ) {
+			return 'Save';
+		} else {
+			return $translation;
+		}
+
+	}
+
 
 	function session() {
 
@@ -66,7 +82,11 @@ class CLINIC_Post_Meta_Boxes {
         	'session',
         	'normal',
         	'default'
-    	);	 	
+    	);	
+
+    	#remove_meta_box( 'submitdiv', 'session', 'normal' );	
+    	#remove_meta_box( 'submitdiv', 'session', 'advanced' );	
+    	#remove_meta_box( 'submitdiv', 'session', 'side' );	
 
 	}
 

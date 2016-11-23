@@ -29,6 +29,31 @@ class CLINIC_Post_Columns {
 		/* Only run our customization on the 'edit.php' page in the admin. */
 		add_action( 'load-edit.php', array( $this, 'session_load' ) );
 
+		add_filter( 'page_row_actions', array( $this, 'disable_quick_edit' ), 10, 2 );
+		
+		add_filter( 'bulk_actions-edit-session', array( $this, 'bulk_actions' ) );
+
+	}
+
+    function bulk_actions( $actions ){
+        unset( $actions[ 'edit' ] );
+        return $actions;
+    }
+
+	function disable_quick_edit( $actions = array(), $post = null ) {
+
+	    if ( ! is_post_type_archive( 'session' ) ) {
+	        return $actions;
+	    }
+
+	    // Remove the Quick Edit link
+	    if ( isset( $actions['inline hide-if-no-js'] ) ) {
+	        unset( $actions['inline hide-if-no-js'] );
+	    }
+
+	    // Return the set of links without Quick Edit
+	    return $actions;
+
 	}
 
 	function session_columns() {
