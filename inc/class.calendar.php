@@ -10,27 +10,89 @@
 
 class CLINIC_Calendar {
 
-	function __construct() {
+	function __construct( $view, $year, $month, $week, $day ) {
 
-		$this -> set_view();
+		$this -> set_view( $view );
+		$this -> set_year( $year );
+		$this -> set_month( $month );
+		$this -> set_week( $week );
+		$this -> set_day( $day );
+
+		$this -> set_page_title();
 
 	}
 
-	function set_view() {
+	function set_view( $view ) {
 
-		$view = 'month';
+		$view = sanitize_text_field( $view );
+		$this -> view = $view;
 
-		if( isset( $_GET['view'] ) ) {
+	}
 
-			if( ! empty( $_GET['view'] ) ) {
+	function set_year( $year ) {
 
-				$view = sanitize_text_field( $_GET['view'] );
+		$year = absint( $year );
+		$this -> year = $year;
 
-			}
+	}
+
+	function set_month( $month ) {
+
+		$month = absint( $month );
+		$this -> month = $month;
+
+	}
+
+	function set_week( $week ) {
+
+		$week = absint( $week );
+		$this -> week = $week;
+
+	}
+
+	function set_day( $day ) {
+
+		$day = absint( $day );
+		$this -> day = $day;
+
+	}
+
+	function set_page_title() {
+
+		if( $this -> view == 'year' ) {
+
+			$this -> page_title = $this -> year;
+
+		} elseif( $this -> view == 'month' ) {
+
+			$this -> page_title = $this -> month;
+
+		} elseif( $this -> view == 'month' ) {
+
+			$this -> page_title = $this -> month;
+
+		} elseif( $this -> view == 'week' ) {
+
+			$this -> page_title = $this -> week;
+
+		} elseif( $this -> view == 'day' ) {
+
+			$this -> page_title = $this -> day;
+
+		} else {
+
+			$this -> page_title = esc_html__( 'Calendar', 'clinic' );
 
 		}
 
-		$this -> view = $view;
+
+
+
+	}		
+
+	function get_page_title() {
+
+		return $this -> page_title;
 
 	}
 
@@ -56,8 +118,14 @@ class CLINIC_Calendar {
 
 		}
 
+		$title = '<h1 class="wp-heading-inline">' . $this -> get_page_title() . '</h1>';
+
+		$hr = '<hr class="wp-header-end">';
+
 		$out = "
 			<div class='wrap'>
+				$title
+				$hr
 				$out
 			</div>
 		";

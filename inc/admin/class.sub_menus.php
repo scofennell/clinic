@@ -25,11 +25,36 @@ class CLINIC_Sub_Menus {
 
 	function session() {
 
-		$calendar = new CLINIC_Calendar;
+		$view = FALSE;
+		if( isset( $_GET['view'] ) ) {
+			$view = sanitize_text_field( $_GET['view'] );
+		}
+
+		$year = FALSE;
+		if( isset( $_GET['year'] ) ) {
+			$year = absint( $_GET['year'] );
+		}
+
+		$month = FALSE;
+		if( isset( $_GET['month'] ) ) {
+			$month = absint( $_GET['month'] );
+		}
+
+		$week = FALSE;
+		if( isset( $_GET['week'] ) ) {
+			$week = absint( $_GET['week'] );
+		}
+
+		$day = FALSE;
+		if( isset( $_GET['day'] ) ) {
+			$day = absint( $_GET['day'] );
+		}								
+
+		$calendar = new CLINIC_Calendar( $view, $year, $month, $week, $day );
 
 		add_submenu_page(
 			'edit.php?post_type=session',
-			esc_html__( 'Calendar', 'clinic' ),
+			$calendar -> get_page_title(),
 			esc_html__( 'Calendar', 'clinic' ),
 			'edit_posts',
 			'calendar',

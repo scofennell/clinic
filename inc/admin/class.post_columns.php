@@ -22,16 +22,27 @@ class CLINIC_Post_Columns {
 		add_filter( 'manage_session_posts_columns', array( $this, 'session_columns' ) );
 
 		// manage_{$post_type}_posts_custom_column
-		add_action( 'manage_session_posts_custom_column', array( $this, 'session_content' ), 10, 2 );
+		add_action( 'manage_custom_column', array( $this, 'session_content' ), 10, 2 );
 
 		add_filter( 'manage_edit-session_sortable_columns', array( $this, 'session_sortable_columns' ) );
 
 		/* Only run our customization on the 'edit.php' page in the admin. */
 		add_action( 'load-edit.php', array( $this, 'session_load' ) );
 
-		add_filter( 'page_row_actions', array( $this, 'disable_quick_edit' ), 10, 2 );
+		add_filter( 'post_row_actions', array( $this, 'disable_quick_edit' ), 10, 2 );
 		
 		add_filter( 'bulk_actions-edit-session', array( $this, 'bulk_actions' ) );
+
+	}
+
+	function is_post_type( $post_type ) {
+
+		if( ! is_admin() ) { return FALSE; }
+
+		if ( ! isset( $_REQUEST['post_type'] ) ) { return FALSE; }
+		if( $_REQUEST['post_type'] != $post_type ) { return FALSE; }
+	
+		return TRUE;
 
 	}
 
@@ -42,9 +53,7 @@ class CLINIC_Post_Columns {
 
 	function disable_quick_edit( $actions = array(), $post = null ) {
 
-	    if ( ! is_post_type_archive( 'session' ) ) {
-	        return $actions;
-	    }
+		if( ! $this -> is_post_type( 'session' ) ) { return $actions; }
 
 	    // Remove the Quick Edit link
 	    if ( isset( $actions['inline hide-if-no-js'] ) ) {
@@ -74,9 +83,13 @@ class CLINIC_Post_Columns {
 
 	function session_content( $column, $post_id ) {
 	
+		wp_die( 86 );
+
 		global $post;
 
 		$session = new CLINIC_Session( $post_id );
+
+		echo '123';
 
 		if( $column == 'start' ) {
 
@@ -120,16 +133,17 @@ class CLINIC_Post_Columns {
 	}
 
 	function session_load() {
+
+		
 		add_filter( 'request', array( $this, 'sort_columns' ) );
 	}
 
 	/* Sorts the movies. */
 	function sort_columns( $vars ) {
 
+
 		/* Check if we're viewing the 'session' post type. */
-		if ( ! isset( $vars['post_type'] ) ) { return $vars; }
-		if( $vars['post_type'] != 'session' ) { return $vars; }
-		if( ! isset( $vars['orderby'] ) ) { return $vars; }		
+		if( ! $this -> is_post_type( 'session' ) ) { return $vars; }	
 
 		if( $vars['orderby'] == 'menu_order title' ) {
 
@@ -166,22 +180,22 @@ class CLINIC_Post_Columns {
 		} elseif( $vars['orderby'] == 'clients') {
 
 			/* Merge the query vars with our custom variables. */
-			$vars = FALSE;
+			$vars = $vars;
 	
 		} elseif ( $vars['orderby'] == 'providers' ) {
 
 			/* Merge the query vars with our custom variables. */
-			$vars = FALSE;
+			$vars = $vars;
 
 		} elseif( $vars['orderby'] == 'locations') {
 
 			/* Merge the query vars with our custom variables. */
-			$vars = FALSE;
+			$vars = $vars;
 	
 		} elseif ( $vars['orderby'] == 'services' ) {
 
 			/* Merge the query vars with our custom variables. */
-			$vars = FALSE;
+			$vars = $vars;
 
 		}
 
