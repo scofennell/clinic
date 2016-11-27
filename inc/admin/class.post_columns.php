@@ -22,7 +22,8 @@ class CLINIC_Post_Columns {
 		add_filter( 'manage_session_posts_columns', array( $this, 'session_columns' ) );
 
 		// manage_{$post_type}_posts_custom_column
-		add_action( 'manage_custom_column', array( $this, 'session_content' ), 10, 2 );
+		add_action( 'manage_posts_custom_column', array( $this, 'session_content' ), 10, 2 );
+		add_action( 'manage_session_posts_custom_column', array( $this, 'session_content' ), 10, 2 );
 
 		add_filter( 'manage_edit-session_sortable_columns', array( $this, 'session_sortable_columns' ) );
 
@@ -32,6 +33,21 @@ class CLINIC_Post_Columns {
 		add_filter( 'post_row_actions', array( $this, 'disable_quick_edit' ), 10, 2 );
 		
 		add_filter( 'bulk_actions-edit-session', array( $this, 'bulk_actions' ) );
+
+		add_action( 'pre_get_posts', array( $this, 'default_order' ), 9 );
+
+	}
+
+	function default_order( $query ) {
+
+		if( ! $this -> is_post_type( 'session' ) ) { return FALSE; }
+
+		$orderby = $query->get( 'orderby');
+
+		if( $orderby == 'menu_order title' ) {
+			$query->set( 'meta_key', CLINIC . '-start' );
+            $query->set( 'orderby',  'meta_value_num' );
+		}
 
 	}
 
@@ -83,13 +99,9 @@ class CLINIC_Post_Columns {
 
 	function session_content( $column, $post_id ) {
 	
-		wp_die( 86 );
-
-		global $post;
+		if( ! $this -> is_post_type( 'session' ) ) { return FALSE; }
 
 		$session = new CLINIC_Session( $post_id );
-
-		echo '123';
 
 		if( $column == 'start' ) {
 
@@ -134,18 +146,23 @@ class CLINIC_Post_Columns {
 
 	function session_load() {
 
-		
-		add_filter( 'request', array( $this, 'sort_columns' ) );
+		if( ! $this -> is_post_type( 'session' ) ) { return FALSE; }
+
+		$vars = array( $this, 'sort_columns' );
+
+		add_filter( 'request', $vars );
+	
 	}
 
 	/* Sorts the movies. */
 	function sort_columns( $vars ) {
 
+		global $post;
 
 		/* Check if we're viewing the 'session' post type. */
 		if( ! $this -> is_post_type( 'session' ) ) { return $vars; }	
 
-		if( $vars['orderby'] == 'menu_order title' ) {
+		/*if( $vars['orderby'] == 'menu_order title' ) {
 
 			$vars = array_merge(
 				$vars,
@@ -155,7 +172,7 @@ class CLINIC_Post_Columns {
 				)
 			);
 
-		} elseif( $vars['orderby'] == 'start' ) {
+		} else*/if( $vars['orderby'] == 'start' ) {
 
 			/* Merge the query vars with our custom variables. */
 			$vars = array_merge(

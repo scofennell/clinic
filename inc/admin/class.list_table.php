@@ -13,7 +13,6 @@ function clinic_list_table_init() {
 	new CLINIC_List_Table;
 
 }
-//add_action( 'plugins_loaded', 'clinic_list_table_init', 110 );
 add_action( 'current_screen', 'clinic_list_table_init', 110 ); 
 
 class CLINIC_List_Table {
@@ -41,8 +40,6 @@ class CLINIC_List_Table {
 
 	
 	function remove_quick_edit( $actions ) {
-
-		wp_die( 45 );
 
 		unset( $actions['inline'] );
 		return $actions;
