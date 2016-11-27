@@ -1,44 +1,44 @@
 
 
 
-.clinic-get_month {
+.clinic-get_month_content {
 	width: 100%;
 	font-size: 85%;
 }
 
-.clinic-get_month-th,
-.clinic-get_month-td {
+.clinic-get_month_content-th,
+.clinic-get_month_content-td {
 	padding: .5em;
 	vertical-align: top;
 	width: 14%;
 }
 
-.clinic-get_month-th-week,
-.clinic-get_month-td-week {
+.clinic-get_month_content-th-week,
+.clinic-get_month_content-td-week {
 	width: 2%;
 	border: none;
 }
 
-.clinic-get_month-th {
+.clinic-get_month_content-th {
 	border-bottom: 2px solid #000;
 }
 
-.clinic-get_month-th-week,
-.clinic-get_month-td-week {
+.clinic-get_month_content-th-week,
+.clinic-get_month_content-td-week {
 	font-weight: normal;
 	font-style: italic;
 	font-size: 80%;
 }
 
-.clinic-get_month-td-week {
+.clinic-get_month_content-td-week {
 
 }
 
-.clinic-get_month-td {
+.clinic-get_month_content-td {
 	border-bottom: 1px dotted #000;
 }
 
-.clinic-get_month-td-pad {
+.clinic-get_month_content-td-pad {
 	background-color: #eee;
 	background-image: linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white), 
 	linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white);
@@ -46,15 +46,15 @@
 	background-position:0 0, 4px 4px
 }
 
-.clinic-get_month-td-day:nth-child( even ) {
+.clinic-get_month_content-td-day:nth-child( even ) {
 	background: rgba( 0, 0, 0, .1 );
 }
 
-.clinic-get_month-tr:last-child .clinic-get_month-td {
+.clinic-get_month_content-tr:last-child .clinic-get_month-td {
 	border-bottom: none;
 }
 
-.clinic-get_month-date {
+.clinic-get_month_content-date {
 	text-decoration: none;
 	font-weight: 600;
 }
@@ -86,7 +86,7 @@
 
 }
 
-.CLINIC_Sessions-get_as_ul-detail {
+.CLINIC_Session-get_details-detail {
 	margin-bottom: 0;
 }
 
@@ -116,14 +116,59 @@
 .clinic-shows_hides {
 	display: inline-block;
 	text-decoration: none;
-	transform: rotate(0deg);
+	transform: rotate( 0deg );
 	transition: transform 300ms ease-in-out;
 
 }
 
 .clinic-shows_hides-showing {
-	transform: rotate(-180deg);
+	transform: rotate( -180deg );
 }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+.CLINIC_Calendar-get_page-day .CLINIC_Sessions-get_as_ul-li {
+	padding: 1em .5em;
+	margin: 0;
+}
+
+.CLINIC_Calendar-get_page-day .CLINIC_Sessions-get_as_ul-li:nth-child( even ) {
+	background: rgba( 0, 0, 0, .1 );
+}
+
+.CLINIC_Calendar-get_page-day .CLINIC_Sessions-get_as_ul-title {
+	font-size: 1.25em;
+	margin-bottom: 1em;
+}
+
+
+
+
+
+
+
+
+.CLINIC_Calendar-get_week_content-li {
+	padding: 1em .5em;
+	margin: 0;
+}
+
+.CLINIC_Calendar-get_week_content-li:nth-child( even ) {
+	background: rgba( 0, 0, 0, .1 );
+}
+
+.CLINIC_Calendar-get_week_content-title {
+	margin: 0 0 1em 0;
+}

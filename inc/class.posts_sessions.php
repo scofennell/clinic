@@ -16,7 +16,7 @@ class CLINIC_Sessions extends CLINIC_Posts {
 
 	}
 
-	function get_as_ul() {
+	function get_as_ul( $format = 'vebose' ) {
 
 		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
 
@@ -28,9 +28,12 @@ class CLINIC_Sessions extends CLINIC_Posts {
 	
 		$out = '';
 		
-		$show_hide    = sanitize_html_class( CLINIC . '-show_hide' );
-		$shows_hides  = sanitize_html_class( CLINIC . '-shows_hides' );
-		
+		$show_hide = '';
+		if( $format == 'compact' ) {
+			$show_hide    = sanitize_html_class( CLINIC . '-show_hide' );
+			$shows_hides  = sanitize_html_class( CLINIC . '-shows_hides' );
+		}
+
 		while( $the_query -> have_posts() ) {
 			$the_query -> the_post();
 			
@@ -51,8 +54,10 @@ class CLINIC_Sessions extends CLINIC_Posts {
 			$details = $session -> get_details();
 
 			$toggle = '';
-			if( ! empty( $details ) ) {
-				$toggle = "<a class='$shows_hides' href='#'>&#9661;</a>";
+			if( $format == 'compact' ) {
+				if( ! empty( $details ) ) {
+					$toggle = "<a class='$shows_hides' href='#'>&#9661;</a>";
+				}
 			}
 
 			$permalink  = esc_url( get_edit_post_link() );

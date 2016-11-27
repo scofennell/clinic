@@ -296,13 +296,16 @@ class CLINIC_Session extends CLINIC_Post {
 		return $out;
 	}	
 
-	function get_details() {
+	function get_details( $output_format = 'verbose' ) {
 
 		$details = '';
 
 		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
 
-		$shown_hidden = sanitize_html_class( CLINIC . '-shown_hidden' );
+		$shown_hidden = '';
+		if( $output_format == 'compact' ) {
+			$shown_hidden = sanitize_html_class( CLINIC . '-shown_hidden' );
+		}
 
 		$clients   = $this -> get_meta_as_list( 'client_ids', 'display_name', 'get_userdata', 'get_edit_user_link' );
 		if( ! empty( $clients ) ) {
