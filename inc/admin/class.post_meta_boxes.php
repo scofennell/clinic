@@ -97,6 +97,10 @@ class CLINIC_Post_Meta_Boxes {
 
 		$out = array(
 
+			$sessions = new CLINIC_Sessions();
+			$obj = $sessions -> get_post_type_object();
+			$this -> session_labels = $obj -> labels;
+
 			'client_ids' => array(
 				'label'         => esc_html__( 'Which Clients?', 'clinic' ),
 				'type'          => 'checkbox_group',

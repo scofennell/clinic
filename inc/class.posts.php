@@ -13,6 +13,7 @@ abstract class CLINIC_Posts {
 	function __construct( $args = array() ) {
 
 		$this -> set_post_type();
+		$this -> set_post_type_object();
 		$this -> set_args( $args );
 		$this -> set_year();
 		$this -> set_month();
@@ -27,6 +28,18 @@ abstract class CLINIC_Posts {
 
 		return $this -> post_type;
 
+	}
+
+	function set_post_type_object() {
+
+		$out = get_post_type_object( $this -> get_post_type() );
+
+		$this -> post_type_object = $out;
+
+	}
+
+	function get_post_type_object() {
+		return $this -> post_type_object;
 	}
 
 	function get_args() {

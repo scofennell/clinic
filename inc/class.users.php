@@ -31,7 +31,7 @@ abstract class CLINIC_Users {
 	function get_role_label() {
 
 		global $wp_roles;
-    	$out = translate_user_role( $wp_roles->roles[ $this -> get_role() ]['name'] );
+    	$out = translate_user_role( $wp_roles -> roles[ $this -> get_role() ]['name'] );
     	return $out;
 
 	}	

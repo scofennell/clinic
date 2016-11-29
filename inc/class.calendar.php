@@ -28,6 +28,10 @@ class CLINIC_Calendar {
 		$this -> set_page_title();
 		$this -> set_page_subtitle();
 
+		$sessions = new CLINIC_Sessions();
+		$obj = $sessions -> get_post_type_object();
+		$this -> session_labels = $obj -> labels;
+
 	}
 
 	function set_week_begins() {
@@ -236,7 +240,23 @@ class CLINIC_Calendar {
 
 	function set_page_subtitle() {
 
-		$this -> page_subtitle = 'subtitle';
+		$view = $this -> get_view();
+
+		if( $view == 'year' ) {
+
+			$out = 'year_subtitle';
+
+		} elseif( $view == 'month' ) {
+
+			$out = $this -> get_count_for_month();
+
+		} elseif( $view == 'day' ) {
+
+			$out = 'day_subtitle';
+
+		}
+
+		$this -> page_subtitle = $out;
 
 	}		
 
@@ -478,7 +498,8 @@ class CLINIC_Calendar {
 
 	function get_navigation() {
 
-		$title = esc_html__( 'Which Sessions?', 'clinic' );
+		$name  = $this -> session_labels -> name;
+		$title = sprintf( esc_html__( 'Which %s?', 'clinic' ), $name );
 
 		$which_year      = $this -> get_year_nav();
 		$which_month     = $this -> get_month_nav();
@@ -615,6 +636,22 @@ class CLINIC_Calendar {
 
 	}
 
+	function get_count_for_month() {
+
+		$month = $this -> month;
+		$year  = $this -> year;		
+
+		$args = array(
+			'month'          => $month,
+			'year'           => $year,
+		);
+		$sessions = new CLINIC_Sessions( $args );
+		$the_query = $sessions -> query();
+		return $the_query -> found_posts;
+
+	}
+
+	
 
 
 }
