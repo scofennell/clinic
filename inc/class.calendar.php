@@ -12,6 +12,7 @@ class CLINIC_Calendar {
 
 	function __construct( $view, $year, $month, $week, $day ) {
 
+		$this -> set_week_begins();
 		$this -> set_view( $view );
 		$this -> set_year( $year );
 		$this -> set_month( $month );
@@ -25,6 +26,17 @@ class CLINIC_Calendar {
 		$this -> set_end_of_week();		
 
 		$this -> set_page_title();
+		$this -> set_page_subtitle();
+
+	}
+
+	function set_week_begins() {
+		$this -> week_begins = absint( get_option( 'start_of_week' ) );
+	}
+
+	function get_week_begins() {
+
+		return $this -> week_begins;
 
 	}
 
@@ -126,7 +138,9 @@ class CLINIC_Calendar {
 
 		$week = $this -> get_week();
 
-		$this -> start_of_week_ts = strtotime( $year . 'W' . $week );
+		$week_begins = $this -> week_begins;
+
+		$this -> start_of_week_ts = strtotime( $year . '-W' . $week . '-' . $week_begins );
 
 	}
 
@@ -200,7 +214,7 @@ class CLINIC_Calendar {
 
 			$end_of_week = $this -> get_end_of_week();			
 
-			$this -> page_title = sprintf( esc_html__( 'Week %d (%s - %s)', 'clinic' ), date( 'W', $ts ), $start_of_week, $end_of_week );
+			$this -> page_title = sprintf( esc_html__( 'Week %d (%s - %s)', 'clinic' ), $this -> get_week(), $start_of_week, $end_of_week );
 
 		} elseif( $view == 'day' ) {
 
@@ -219,6 +233,18 @@ class CLINIC_Calendar {
 		return $this -> page_title;
 
 	}
+
+	function set_page_subtitle() {
+
+		$this -> page_subtitle = 'subtitle';
+
+	}		
+
+	function get_page_subtitle() {
+
+		return $this -> page_subtitle;
+
+	}	
 
 	function the_page() {
 
@@ -250,13 +276,15 @@ class CLINIC_Calendar {
 
 		}
 
-		$title = '<h1 class="wp-heading-inline">' . $this -> get_page_title() . '</h1>';
+		$title    = '<h1 class="wp-heading-inline $class-title">' . $this -> get_page_title() . '</h1>';
+		$subtitle = '<p class="$class-subtitle">' . $this -> get_page_subtitle() . '</>';
 
 		$hr = '<hr class="wp-header-end">';
 
 		$out = "
 			<div class='wrap $class $class-$view'>
 				$title
+				$subtitle
 				$hr
 				$out
 			</div>
@@ -284,7 +312,7 @@ class CLINIC_Calendar {
 		$last_day = date( 't', $unixmonth );
 
 		// week_begins = 0 stands for Sunday
-		$week_begins = absint( get_option( 'start_of_week' ) );
+		$week_begins = $this -> week_begins;
 		
 		$ts = current_time( 'timestamp' );
 	
@@ -392,7 +420,17 @@ class CLINIC_Calendar {
 
 		$start_of_week = $this -> get_start_of_week_ts();
 
-		for ( $i = 1; $i <= 7; ++$i ) {
+		/*wp_die( var_dump(
+			array(
+				'line' => __LINE__,
+				'file' => __FILE__,
+				'start_of_week' => $start_of_week,
+				'start_of_week_date' => date( 'F j, Y', $start_of_week ),
+				'strtotime' => strtotime( 'November 21, 2016' ),
+			)
+		) );*/
+
+		for ( $i = 0; $i <= 6; ++$i ) {
 
 			$ts = $start_of_week + ( DAY_IN_SECONDS * $i );
 
@@ -534,7 +572,7 @@ class CLINIC_Calendar {
 			$the_query = $sessions -> query();
 			$found_posts = $the_query -> found_posts;
 			if( $found_posts > $posts_per_page ) {
-				$href = '';
+				$href = $this -> get_day_href( $year, $month, $day );
 				$view_all = sprintf( esc_html__( '&hellip; view all %d sessions', 'clinic' ), $found_posts );
 				$out .= "<div><a href='$href'><i>$view_all</i></a></div>";
 			}
