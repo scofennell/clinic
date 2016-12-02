@@ -12,6 +12,10 @@ class CLINIC_Calendar {
 
 	function __construct( $view, $year, $month, $week, $day ) {
 
+		$sessions = new CLINIC_Sessions();
+		$obj = $sessions -> get_post_type_object();
+		$this -> session_labels = $obj -> labels;
+
 		$this -> set_week_begins();
 		$this -> set_view( $view );
 		$this -> set_year( $year );
@@ -27,10 +31,6 @@ class CLINIC_Calendar {
 
 		$this -> set_page_title();
 		$this -> set_page_subtitle();
-
-		$sessions = new CLINIC_Sessions();
-		$obj = $sessions -> get_post_type_object();
-		$this -> session_labels = $obj -> labels;
 
 	}
 
@@ -204,13 +204,14 @@ class CLINIC_Calendar {
 
 		$view = $this -> get_view();
 
-		if( $view == 'year' ) {
+		if( $view == 'month' ) {
 
-			$this -> page_title = sprintf( esc_html__( '%d', 'clinic' ), date( 'Y', $ts ) );
+			$title = sprintf( esc_html__( '%s', 'clinic' ), date( 'F, Y', $ts ) );
 
-		} elseif( $view == 'month' ) {
+			$next_month_link = '<a href="#"><span class="dashicons dashicons-arrow-right"></span></a>';
+			$prev_month_link = '<a href="#"><span class="dashicons dashicons-arrow-left"></span></a>';
 
-			$this -> page_title = sprintf( esc_html__( '%s', 'clinic' ), date( 'F, Y', $ts ) );
+			$this -> page_title = $prev_month_link . $title . $next_month_link;
 
 		} elseif( $view == 'week' ) {
 
@@ -242,11 +243,26 @@ class CLINIC_Calendar {
 
 		$view = $this -> get_view();
 
-		if( $view == 'year' ) {
+		$out = '';
 
-			$out = 'year_subtitle';
+		$count = $this -> get_count_for_month();
 
-		} elseif( $view == 'month' ) {
+		$single = $this -> session_labels -> singular_name;
+		$plural = $this -> session_labels -> name;
+		$sessions_label = _n(
+			$single,
+			$plural,
+			$count,
+			'clinic'
+		);
+
+		if( $view == 'month' ) {
+
+			$out = sprintf( esc_html__( '%d %s', 'clinic' ), $count, $sessions_label );
+
+		} elseif( $view == 'week' ) {
+
+			$out = 'week_subtitle';
 
 			$out = $this -> get_count_for_month();
 
@@ -278,11 +294,7 @@ class CLINIC_Calendar {
 
 		$view = $this -> get_view();
 
-		if( $view == 'year' ) {
-
-			$out = $this -> get_year_content();
-
-		} elseif( $view == 'month' ) {
+		if( $view == 'month' ) {
 
 			$out = $this -> get_month_content();
 
@@ -311,10 +323,6 @@ class CLINIC_Calendar {
 		";
 
 		return $out;
-
-	}
-
-	function get_year_content() {
 
 	}
 
@@ -647,7 +655,7 @@ class CLINIC_Calendar {
 		);
 		$sessions = new CLINIC_Sessions( $args );
 		$the_query = $sessions -> query();
-		return $the_query -> found_posts;
+		return absint( $the_query -> found_posts );
 
 	}
 

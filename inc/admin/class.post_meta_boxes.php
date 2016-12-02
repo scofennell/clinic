@@ -13,11 +13,29 @@ function clinic_post_meta_boxes_init() {
 	new CLINIC_Post_Meta_Boxes;
 
 }
-add_action( 'plugins_loaded', 'clinic_post_meta_boxes_init', 110 ); 
+add_action( 'init', 'clinic_post_meta_boxes_init', 110 ); 
 
 class CLINIC_Post_Meta_Boxes {
 
 	function __construct() {
+
+		$sessions = new CLINIC_Sessions();
+		$obj = $sessions -> get_post_type_object();
+		$this -> session_labels = $obj -> labels;
+
+		$services = new CLINIC_Services();
+		$obj = $services -> get_post_type_object();
+		$this -> services_labels = $obj -> labels;
+
+		$locations = new CLINIC_Locations();
+		$obj = $locations -> get_post_type_object();
+		$this -> locations_labels = $obj -> labels;
+
+		$clients = new CLINIC_Clients();
+		$this -> client_label = $clients -> get_role_label();
+
+		$providers = new CLINIC_Providers();
+		$this -> provider_label = $providers -> get_role_label();
 
 		add_action( 'add_meta_boxes_session', array( $this, 'session' ) );
 		add_action( 'save_post_session', array( $this, 'save_session_where' ) );
@@ -29,6 +47,8 @@ class CLINIC_Post_Meta_Boxes {
 		#add_action( 'add_meta_boxes_testimonial', array( $this, 'testimonial' ) );
 
 		add_filter( 'gettext', array( $this, 'change_publish_button' ), 10, 2 );
+
+
 
 	}
 
@@ -97,19 +117,15 @@ class CLINIC_Post_Meta_Boxes {
 
 		$out = array(
 
-			$sessions = new CLINIC_Sessions();
-			$obj = $sessions -> get_post_type_object();
-			$this -> session_labels = $obj -> labels;
-
 			'client_ids' => array(
-				'label'         => esc_html__( 'Which Clients?', 'clinic' ),
+				'label'         => sprintf( esc_html__( 'Which %s?', 'clinic' ), $this -> client_label ),
 				'type'          => 'checkbox_group',
 				'options'       => $clients -> get_as_kv(),
 				'sanitization_cb' => 'absint',
 			),
 
 			'provider_ids' => array(
-				'label'         => esc_html__( 'Which Providers?', 'clinic' ),
+				'label'         => sprintf( esc_html__( 'Which %s?', 'clinic' ), $this -> provider_label ),
 				'type'          => 'checkbox_group',
 				'options'       => $providers -> get_as_kv(),
 				'sanitization_cb' => 'absint',
@@ -150,7 +166,7 @@ class CLINIC_Post_Meta_Boxes {
 		$out = array(
 
 			'location_ids' => array(
-				'label'         => esc_html__( 'Which Locations?', 'clinic' ),
+				'label'         => sprintf( esc_html__( 'Which %s?', 'clinic' ), $this -> locations_labels -> name ),
 				'type'          => 'checkbox_group',
 				'options'       => $locations -> get_as_kv(),
 				'sanitization_cb' => 'absint',
@@ -191,7 +207,7 @@ class CLINIC_Post_Meta_Boxes {
 		$out = array(
 
 			'service_ids' => array(
-				'label'         => esc_html__( 'Which Services?', 'clinic' ),
+				'label'         => sprintf( esc_html__( 'Which %s?', 'clinic' ), $this -> services_labels -> name),
 				'type'          => 'checkbox_group',
 				'options'       => $services -> get_as_kv(),
 				'sanitization_cb' => 'absint',

@@ -15,12 +15,21 @@ abstract class CLINIC_Posts {
 		$this -> set_post_type();
 		$this -> set_post_type_object();
 		$this -> set_args( $args );
-		$this -> set_year();
-		$this -> set_month();
-		$this -> set_day();
 		$this -> set_posts_per_page();
-		$this -> set_datetime();
-		$this -> set_timestamp();
+		
+		$this -> set_start_year();
+		$this -> set_start_month();
+		$this -> set_start_day();
+		$this -> set_start_datetime();
+		$this -> set_start_timestamp();
+
+		$this -> set_interval();
+
+		$this -> set_end_timestamp();
+		$this -> set_end_year();
+		$this -> set_end_month();
+		$this -> set_end_day();
+		$this -> set_end_datetime();
 	
 	}
 
@@ -33,6 +42,8 @@ abstract class CLINIC_Posts {
 	function set_post_type_object() {
 
 		$out = get_post_type_object( $this -> get_post_type() );
+
+		//wp_die( var_dump( get_post_type_object( 'sessions' ) ) );
 
 		$this -> post_type_object = $out;
 
@@ -54,55 +65,122 @@ abstract class CLINIC_Posts {
 
 	}
 
-	function get_year() {
+	function get_start_year() {
 
-		return $this -> year;
+		return $this -> start_year;
 
 	}
 
-	function set_year() {
+	function set_start_year() {
 
 		if( isset( $this -> args['year'] ) ) {
-			$this -> year = absint( $this -> args['year'] );
+			$this -> start_year = absint( $this -> args['year'] );
 		} else {
-			$this -> year = FALSE;
+			$this -> start_year = FALSE;
 		}
 
 	}
 
-	function get_month() {
+	function get_start_month() {
 
-		return $this -> month;
+		return $this -> start_month;
 
 	}
 
 
-	function set_month() {
+	function set_start_month() {
 
 		if( isset( $this -> args['month'] ) ) {
-			$this -> month = absint( $this -> args['month'] );
+			$this -> start_month = absint( $this -> args['month'] );
 		} else {
-			$this -> month = FALSE;
+			$this -> start_month = FALSE;
 		}
 
 	}
 
-	function get_day() {
+	function get_start_day() {
 
-		return $this -> day;
+		return $this -> start_day;
 
 	}
 
 
-	function set_day() {
+	function set_start_day() {
 
 		if( isset( $this -> args['day'] ) ) {
-			$this -> day = absint( $this -> args['day'] );
+			$this -> start_day = absint( $this -> args['day'] );
 		} else {
-			$this -> day = FALSE;
+			$this -> start_day = FALSE;
 		}
 
-	}		
+	}	
+
+	function get_end_year() {
+
+		return $this -> end_year;
+
+	}
+
+	function set_end_year() {
+
+		$end_timestamp = $this -> get_end_timestamp();
+
+		$out = date( 'Y', $end_timestamp );
+
+		$this -> end_year = $out;
+
+	}
+
+	function get_end_month() {
+
+		return $this -> end_month;
+
+	}
+
+
+	function set_end_month() {
+
+		$end_timestamp = $this -> get_end_timestamp();
+
+		$out = date( 'm', $end_timestamp );
+
+		$this -> end_month = $out;
+	}
+
+	function get_end_day() {
+
+		return $this -> end_day;
+
+	}
+
+
+	function set_end_day() {
+
+		$end_timestamp = $this -> get_end_timestamp();
+
+		$out = date( 'j', $end_timestamp );
+
+		$this -> end_day = $out;
+
+	}	
+
+	function get_end_timestamp() {
+
+		return $this -> end_timestamp;
+
+	}
+
+	function set_end_timestamp() {
+
+		$start_timestamp = $this -> get_start_timestamp();
+
+		$interval = $this -> get_interval();
+
+		$end_timestamp = $start_timestamp + $interval;
+
+		$this -> end_timestamp = $end_timestamp;
+
+	}
 
 	function get_posts_per_page() {
 
@@ -172,42 +250,86 @@ abstract class CLINIC_Posts {
 
 	}
 
-	function get_datetime() {
+	function get_start_datetime() {
 
-		return $this -> datetime;
+		return $this -> start_datetime;
 
 	}
 
-	function set_datetime() {
+	function set_start_datetime() {
 
-		$flag = TRUE;
+		$out = '';
 
-		$year = $this -> get_year();
-		if( empty( $year ) ) { $flag = FALSE; }
+		$start_year = $this -> get_start_year();
+		if( ! empty( $start_year ) ) { $out .= $start_year; }
 
-		$month = $this -> get_month();
-		if( empty( $month ) ) { $flag = FALSE; }
+		$start_month = $this -> get_start_month();
+		if( ! empty( $start_month ) ) { $out .= "-$start_month"; }
 
-		$day = $this -> get_day();			
-		if( empty( $day ) ) { $flag = FALSE; }
+		$start_day = $this -> get_start_day();			
+		if( ! empty( $start_day ) ) { $out .= "-$start_day"; }
 
-		if( $flag ) {
-			$this -> datetime = "$year-$month-$day";
-		} else {
-			$this -> datetime = FALSE;	
+		$this -> start_datetime = $out;
+
+	}
+
+	function get_end_datetime() {
+
+		return $this -> end_datetime;
+
+	}
+
+	function set_end_datetime() {
+
+		$strtotime = $this -> get_end_timestamp();
+
+		$out = date( 'Y-m-j', $strtotime );
+
+		$this -> end_datetime = $out;
+
+	}	
+
+	function get_interval() {
+
+		return $this -> interval;
+
+	}
+
+	function set_interval() {
+
+		$interval = DAY_IN_SECONDS;
+
+		$start_year  = $this -> get_start_year();
+		$start_month = $this -> get_start_month();
+		$start_day   = $this -> get_start_day();				
+
+		if( ! empty( $start_day ) ) {
+
+			$interval = DAY_IN_SECONDS;
+
+		} elseif( ! empty( $start_month ) ) {
+
+			$interval = MONTH_IN_SECONDS;	
+
+		} elseif( ! empty( $start_year ) ) {
+
+			$interval = YEAR_IN_SECONDS;	
+
 		}
 
-	}
-
-	function get_timestamp() {
-
-		return $this -> timestamp;
+		$this -> interval = $interval;
 
 	}
 
-	function set_timestamp() {
+	function get_start_timestamp() {
 
-		$this -> timestamp = strtotime( $this -> get_datetime() );
+		return $this -> start_timestamp;
+
+	}
+
+	function set_start_timestamp() {
+
+		$this -> start_timestamp = strtotime( $this -> get_start_datetime() );
 
 	}	
 
@@ -218,10 +340,10 @@ abstract class CLINIC_Posts {
 			'posts_per_page' => $this -> get_posts_per_page(),
 		);
 
-		if( ! empty( $this -> get_datetime() ) ) {
+		if( ! empty( $this -> get_start_datetime() ) ) {
 
-			$start_of_day = $this -> get_timestamp();
-			$end_of_day   = $start_of_day + DAY_IN_SECONDS;	
+			$start = $this -> get_start_timestamp();
+			$end   = $this -> get_end_timestamp();
 
 			$args['orderby']    = 'meta_value_num';
 			$args['order']      = 'ASC';
@@ -234,13 +356,13 @@ abstract class CLINIC_Posts {
 				),*/
 				array(
 					'key'     => CLINIC . '-' . 'start',
-					'value'   => absint( $end_of_day ),
+					'value'   => absint( $end ),
 					'type'    => 'NUMERIC',
 					'compare' => '<',
 				),
 				array(
 					'key'     => CLINIC . '-' . 'end',
-					'value'   => absint( $start_of_day ),
+					'value'   => absint( $start ),
 					'type'    => 'NUMERIC',
 					'compare' => '>',
 				),

@@ -20,7 +20,7 @@ class CLINIC_Sessions extends CLINIC_Posts {
 
 		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
 
-		$timestamp = $this -> get_timestamp();
+		$timestamp = $this -> get_start_timestamp();
 
 		$the_query = $this -> query();
 
@@ -51,7 +51,7 @@ class CLINIC_Sessions extends CLINIC_Posts {
 				$maybe_ends_days_ahead = 'ends_days_ahead';
 			}			
 			
-			$details = $session -> get_details();
+			$details = $session -> get_details( $format );
 
 			$toggle = '';
 			if( $format == 'compact' ) {
