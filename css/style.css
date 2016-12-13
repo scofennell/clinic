@@ -172,3 +172,25 @@
 .CLINIC_Calendar-get_week_content-title {
 	margin: 0 0 1em 0;
 }
+
+
+
+
+
+
+
+
+
+
+.CLINIC_Calendar-get_arrow_link {
+	text-decoration: none;
+}
+
+
+.CLINIC_Calendar-get_arrow_link .dashicons {
+	vertical-align: text-top;
+	font-size: 2em;
+	width: auto;
+	height: auto;
+	line-height: inherit;
+}
