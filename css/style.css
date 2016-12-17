@@ -1,6 +1,3 @@
-
-
-
 .clinic-get_month_content {
 	width: 100%;
 	font-size: 85%;
@@ -47,7 +44,7 @@
 }
 
 .clinic-get_month_content-td-day:nth-child( even ) {
-	background: rgba( 0, 0, 0, .1 );
+	background-color: rgba( 0, 0, 0, .1 );
 }
 
 .clinic-get_month_content-tr:last-child .clinic-get_month-td {
@@ -57,12 +54,24 @@
 .clinic-get_month_content-date {
 	text-decoration: none;
 	font-weight: 600;
+	display: block;
+	margin-bottom: 1em;
+}
+
+.clinic-get_month_content-date:last-child {
+	margin-bottom: 0;
 }
 
 
 
+.CLINIC_Sessions-get_as_ul {
+	margin: 0 0 2em 0;
+	padding: 0;
+}
 
-
+.CLINIC_Sessions-get_as_ul:last-child {
+	margin-bottom: 0;
+}
 
 .CLINIC_Sessions-get_as_ul-li {
 	margin-bottom: 2em;
@@ -73,8 +82,8 @@
 }
 
 .CLINIC_Sessions-get_as_ul-title {
-	margin: 0;
 	font-weight: 400;
+	margin: 0;
 }
 
 .CLINIC_Sessions-get_as_ul-title .clinic-shows_hides {
@@ -137,7 +146,9 @@
 
 
 
-
+.CLINIC_Calendar-get_page_content-body {
+	margin-bottom: 3em;
+}
 
 .CLINIC_Calendar-get_page-day .CLINIC_Sessions-get_as_ul-li {
 	padding: 1em .5em;
@@ -182,15 +193,61 @@
 
 
 
+
+
+
+
+
+
+
 .CLINIC_Calendar-get_arrow_link {
 	text-decoration: none;
 }
 
-
 .CLINIC_Calendar-get_arrow_link .dashicons {
-	vertical-align: text-top;
 	font-size: 2em;
-	width: auto;
 	height: auto;
 	line-height: inherit;
+	vertical-align: text-top;
+	width: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.CLINIC_Calendar-get_nav_control {
+	margin-bottom: 2em;
+}
+
+.CLINIC_Calendar-get_nav_control:last-child {
+	margin-bottom: 0;
+}
+
+.CLINIC_Calendar-get_nav_control-label {
+	display: block;
+}
+
+.CLINIC_Calendar-get_navigation {
+	background-color: rgba( 0, 0, 0, .1 );
+	padding: 1em;
+	border-radius: .25em;
+	box-shadow: 0 0 3px 0 rgba( 0, 0, 0, .4 );
+	border: 1px solid rgba( 0, 0, 0, .5 );
+}
+
+.CLINIC_Calendar-get_navigation-title {
+	margin: 0 0 2em 0;
+}
+
+.CLINIC_Calendar-get_navigation-fieldset {
+	margin: 0 0 2em 0;
 }

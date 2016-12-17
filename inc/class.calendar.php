@@ -10,13 +10,16 @@
 
 class CLINIC_Calendar {
 
-	wp_die( var_dump( 'need to fix next/prev week behavior near the end/beginning of year' ) );
-
 	function __construct( $view, $year, $month, $week, $day ) {
 
 		$sessions = new CLINIC_Sessions();
 		$obj = $sessions -> get_post_type_object();
 		$this -> session_labels = $obj -> labels;
+
+		$this -> set_page();
+		$this -> set_post_type();		
+
+		$date_format = $this -> set_date_format();
 
 		$this -> set_week_begins();
 		$this -> set_view( $view );
@@ -35,6 +38,30 @@ class CLINIC_Calendar {
 		$this -> set_page_title();
 		$this -> set_page_subtitle();
 
+	}
+
+	function get_page() {
+		return $this -> page;
+	}
+
+	function set_page() {
+		$this -> page = $_GET['page'];
+	}
+
+	function get_post_type() {
+		return $this -> post_type;
+	}
+
+	function set_post_type() {
+		$this -> post_type = $_GET['post_type'];
+	}
+
+	function get_date_format() {
+		return $this -> date_format;
+	}
+
+	function set_date_format() {
+		$this -> date_format = get_option( 'date_format' );
 	}
 
 	function get_datetime() {
@@ -117,7 +144,9 @@ class CLINIC_Calendar {
 			$week = date( 'W' );
 		}
 
-		$week = absint( $week );
+		if( strlen( $week ) == 1 ) {
+			$week = '0' . $week;
+		}
 		$this -> week = $week;
 
 	}
@@ -179,9 +208,13 @@ class CLINIC_Calendar {
 
 		$week = $this -> get_week();
 
-		$week_begins = $this -> week_begins;
+		$week_begins = $this -> get_week_begins();
 
-		$this -> start_of_week_ts = strtotime( $year . '-W' . $week . '-' . $week_begins );
+		$date = $year . 'W' . $week . '-' . $week_begins;
+
+	
+		$this -> start_of_week_ts = strtotime( $date );
+
 
 	}
 
@@ -210,7 +243,7 @@ class CLINIC_Calendar {
 
 		$start_of_week_ts = $this -> get_start_of_week_ts();
 
-		$this -> start_of_week = date( get_option( 'date_format') , $start_of_week_ts );
+		$this -> start_of_week = date( $this -> get_date_format() , $start_of_week_ts );
 
 	}
 
@@ -224,7 +257,7 @@ class CLINIC_Calendar {
 
 		$end_of_week_ts = $this -> get_end_of_week_ts();
 
-		$this -> end_of_week = date( get_option( 'date_format' ), $end_of_week_ts );
+		$this -> end_of_week = date( $this -> get_date_format(), $end_of_week_ts );
 
 	}
 
@@ -277,7 +310,21 @@ class CLINIC_Calendar {
 
 		} elseif( $view == 'day' ) {
 
-			$this -> page_title = sprintf( esc_html__( '%s', 'clinic' ), date( get_option( 'date_format' ), $ts ) );
+			$title = sprintf( esc_html__( '%s', 'clinic' ), date( $this -> get_date_format(), $ts ) );
+
+			$year_of_next_day  = $this -> get_year_of_next_day();
+			$month_of_next_day = $this -> get_month_of_next_day();
+			$day_of_next_day   = $this -> get_day_of_next_day();
+			$next_day_href     = $this -> get_day_href( $year_of_next_day, $month_of_next_day, $day_of_next_day );
+			$next_day_link     = $this -> get_arrow_link( $next_day_href, 'next' );
+			
+			$year_of_prev_day  = $this -> get_year_of_prev_day();
+			$month_of_prev_day = $this -> get_month_of_prev_day();
+			$day_of_prev_day   = $this -> get_day_of_prev_day();
+			$prev_day_href     = $this -> get_day_href( $year_of_prev_day, $month_of_prev_day, $day_of_prev_day );
+			$prev_day_link     = $this -> get_arrow_link( $prev_day_href, 'prev' );
+
+			$this -> page_title = $prev_day_link . $title . $next_day_link;
 
 		} else {
 
@@ -310,6 +357,8 @@ class CLINIC_Calendar {
 			'clinic'
 		);
 
+		wp_die( var_dump( $sessions_label ) );
+
 		if( $view == 'month' ) {
 
 			$out = sprintf( esc_html__( '%d %s', 'clinic' ), $count, $sessions_label );
@@ -338,32 +387,34 @@ class CLINIC_Calendar {
 
 	function the_page() {
 
-		echo $this -> get_page();
+		echo $this -> get_page_content();
 
 	}
 
-	function get_page() {
+	function get_page_content() {
 
 		$class = sanitize_html_class( __CLASS__ . '-' . __FUNCTION__ );
+
+		$title    = "<h1 class='wp-heading-inline $class-title'>" . $this -> get_page_title() . '</h1>';
+		$subtitle = "<p class='$class-subtitle'>" . $this -> get_page_subtitle() . '</p>';
 
 		$view = $this -> get_view();
 
 		if( $view == 'month' ) {
 
-			$out = $this -> get_month_content();
+			$content = $this -> get_month_content();
 
 		} elseif( $view == 'week' ) {
 
-			$out = $this -> get_week_content();
+			$content = $this -> get_week_content();
 
 		} elseif( $view == 'day' ) {
 
-			$out = $this -> get_day_content();
+			$content = $this -> get_day_content();
 
 		}
 
-		$title    = "<h1 class='wp-heading-inline $class-title'>" . $this -> get_page_title() . '</h1>';
-		$subtitle = "<p class='$class-subtitle'>" . $this -> get_page_subtitle() . '</p>';
+		$navigation = $this -> get_navigation();
 
 		$hr = '<hr class="wp-header-end">';
 
@@ -372,7 +423,10 @@ class CLINIC_Calendar {
 				$title
 				$subtitle
 				$hr
-				$out
+				<div class='$class-body'>
+					$content
+				</div>
+				$navigation
 			</div>
 		";
 
@@ -394,7 +448,7 @@ class CLINIC_Calendar {
 		$last_day = date( 't', $unixmonth );
 
 		// week_begins = 0 stands for Sunday
-		$week_begins = $this -> week_begins;
+		$week_begins = $this -> get_week_begins();
 		
 		$ts = current_time( 'timestamp' );
 	
@@ -473,8 +527,6 @@ class CLINIC_Calendar {
 			$body .= "<td class='$class-td-pad $class-td' colspan='$pad'>&nbsp;</td>";
 		}
 
-		$navigation = $this -> get_navigation();
-
 		$out = "
 			<table class='$class'>
 				<thead class='$class-thead'>
@@ -487,7 +539,6 @@ class CLINIC_Calendar {
 					</tr>
 				</tbody>
 			</table>
-			$navigation
 		";
 
 		return $out;
@@ -512,7 +563,7 @@ class CLINIC_Calendar {
 
 			$day_ts = strtotime( "$year-$month-$day" );
 
-			$date = date( get_option( 'date_format' ), $day_ts );
+			$date = date( $this -> get_date_format(), $day_ts );
 
 			$sessions = $this -> get_for_day( $day, $month, $year );
 
@@ -560,17 +611,35 @@ class CLINIC_Calendar {
 		$which_locations = $this -> get_location_nav();
 		$which_services  = $this -> get_service_nav();
 
-		$submit = get_submit_button( esc_html__( 'Go', 'clinic' ) );
+		$class = __CLASS__ . '-' . __FUNCTION__;
+
+		$submit = get_submit_button( esc_html__( 'Go', 'clinic' ), 'primary', 'submit', FALSE );
+		$submit = "
+			<div class='$class-submit'>$submit</div>
+		";
 		
+		$action = $this -> get_base_href();
+
+		$post_type = $this -> get_post_type();
+		$page      = $this -> get_page();
+
+		$hidden = "
+			<input name='post_type' value='$post_type' type='hidden'>
+			<input name='page'      value='$page'      type='hidden'>			
+		";
+
 		$out = "
-			<form>
-				<h4>$title</h4>
-				$which_year
-				$which_month
-				$which_providers
-				$which_clients
-				$which_locations
-				$which_services				
+			<form action='$action' method='GET' class='$class'>
+				$hidden
+				<h4 class='$class-title'>$title</h4>
+				<fieldset class='$class-fieldset'>
+					$which_year
+					$which_month
+					$which_providers
+					$which_clients
+					$which_locations
+					$which_services				
+				</fieldset>
 				$submit	
 			</form>
 		";
@@ -579,44 +648,115 @@ class CLINIC_Calendar {
 
 	}
 
+	function get_nav_control( $content, $slug, $label ) {
+
+		$class = __CLASS__ . '-' . __FUNCTION__;
+
+		$out = "
+			<div class='$class'>
+				<label class='$class-label' for='$slug'>$label</label>
+				$content
+			</div>
+		";
+
+		return $out;
+
+	}
+
+	function get_years_of_sessions() {
+		
+
+
+
+	}
+
 	function get_year_nav() {
 
-		$out = 'hello';
+		$current = $this -> get_year();
+
+		$slug = 'year';
+
+		$content = "
+			<input type='number' value='$current' min='0' max='9999' name='$slug'>
+		";
+
+		$label = esc_html__( 'Year', 'clinic' );
+
+		$out = $this -> get_nav_control( $content, $slug, $label );
 		return $out;
 
 	}
 
 	function get_month_nav() {
+		
+		$current = $this -> get_month();
 
-		$out = 'hello';
+		$slug = 'month';
+
+		$i = 0;
+		$end   = 12;
+		while ( $i < $end ) {
+			$i++;
+			$date = DateTime::createFromFormat( '!m', $i );
+			$m    = $date -> format( 'F' );
+			$options_arr[ $i ] = $m;
+		}
+
+		$formatting = new CLINIC_Formatting( $options_arr );
+		$options = $formatting -> array_to_options( $current );
+
+		$content = "
+			<select id='$slug' name='$slug'>
+				$options
+			</select>
+		";
+		$label = esc_html__( 'Month', 'clinic' );
+
+		$out = $this -> get_nav_control( $content, $slug, $label );
 		return $out;
 
 	}
 
 	function get_provider_nav() {
 
-		$out = 'hello';
+		$content = 'hello';
+		$slug = 'provider';
+		$label = esc_html__( 'Provider', 'clinic' );
+
+		$out = $this -> get_nav_control( $content, $slug, $label );
 		return $out;
 
 	}
 
 	function get_client_nav() {
 
-		$out = 'hello';
+		$content = 'hello';
+		$slug = 'client';
+		$label = esc_html__( 'Client', 'clinic' );
+
+		$out = $this -> get_nav_control( $content, $slug, $label );
 		return $out;
 
 	}	
 
 	function get_location_nav() {
 
-		$out = 'hello';
+		$content = 'hello';
+		$slug = 'location';
+		$label = esc_html__( 'Location', 'clinic' );
+
+		$out = $this -> get_nav_control( $content, $slug, $label );
 		return $out;
 
 	}		
 
 	function get_service_nav() {
 
-		$out = 'hello';
+		$content = 'hello';
+		$slug = 'service';
+		$label = esc_html__( 'Service', 'clinic' );
+
+		$out = $this -> get_nav_control( $content, $slug, $label );
 		return $out;
 
 	}			
@@ -646,7 +786,8 @@ class CLINIC_Calendar {
 			$found_posts = $the_query -> found_posts;
 			if( $found_posts > $posts_per_page ) {
 				$href = $this -> get_day_href( $year, $month, $day );
-				$view_all = sprintf( esc_html__( '&hellip; view all %d sessions', 'clinic' ), $found_posts );
+				$sessions_label = strtolower( $this -> session_labels -> name );
+				$view_all = sprintf( esc_html__( '&hellip; view all %d %s', 'clinic' ), $found_posts, $sessions_label );
 				$out .= "<div><a href='$href'><i>$view_all</i></a></div>";
 			}
 		}
@@ -792,6 +933,7 @@ class CLINIC_Calendar {
 	function  get_year_of_prev_week() {
 
 		$datetime = $this -> get_datetime();
+
 		$datetime -> modify( "-1 week" );
 		$out = $datetime -> format( 'Y' );
 		return $out;
@@ -800,12 +942,67 @@ class CLINIC_Calendar {
 	
 	function  get_week_of_prev_week() {
 
-		$datetime = $this -> get_datetime();
-		$datetime -> modify( "-1 week" );
-		$out = $datetime -> format( 'W' );
+		$week = $this -> get_week();
+		if( $week == 1 ) {
+			$out = 52;
+		} else {
+			$datetime = $this -> get_datetime();
+			$datetime -> modify( "-1 week" );
+			$out = $datetime -> format( 'W' );
+		}
+
 		return $out;
 
 
+	}
+
+	function get_year_of_next_day() {
+
+		$datetime = $this -> get_datetime();
+		$datetime -> modify( "+1 day" );
+		$out = $datetime -> format( 'Y' );
+		return $out;
+
+	}
+
+	function get_month_of_next_day() {
+		$datetime = $this -> get_datetime();
+		$datetime -> modify( "+1 day" );
+		$out = $datetime -> format( 'm' );
+		return $out;
+		
+	}	
+
+	function get_day_of_next_day() {
+		$datetime = $this -> get_datetime();
+		$datetime -> modify( "+1 day" );
+		$out = $datetime -> format( 'j' );
+		return $out;
+		
+	}
+
+	function get_year_of_prev_day() {
+		$datetime = $this -> get_datetime();
+		$datetime -> modify( "-1 day" );
+		$out = $datetime -> format( 'Y' );
+		return $out;
+
+	}
+
+	function get_month_of_prev_day() {
+		$datetime = $this -> get_datetime();
+		$datetime -> modify( "-1 day" );
+		$out = $datetime -> format( 'm' );
+		return $out;
+		
+	}	
+
+	function get_day_of_prev_day() {
+		$datetime = $this -> get_datetime();
+		$datetime -> modify( "-1 day" );
+		$out = $datetime -> format( 'j' );
+		return $out;
+		
 	}	
 
 }

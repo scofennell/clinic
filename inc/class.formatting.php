@@ -16,7 +16,20 @@ class CLINIC_Formatting {
 
 	}
 
-	function array_to_comma_sep( $label, $href_cb, $before_last = 'and' ) {
+	function array_to_options( $current ) {
+
+		$out = '';
+
+		foreach( $this -> in as $k => $v ) {
+			$selected = selected( $k, $current, FALSE );
+			$out .= "<option $selected value='$k'>$v</option>";
+		}
+
+		return $out;
+
+	}
+
+	function array_to_comma_sep( $label_field, $href_cb, $before_last = 'and' ) {
 
 		$in  = $this -> in;
 		$out = '';
@@ -29,11 +42,16 @@ class CLINIC_Formatting {
 
 			$i++;
 
+			$label = '';
+			if( is_object( $v ) ) {
+				$label = $v -> $label_field;
+			}
+
 			if( ! empty( $href_cb ) ) {
 				$href = esc_url( call_user_func( $href_cb, $k ) );
-				$out .= "<a href='$href'>" . $v -> $label . '</a>';
+				$out .= "<a href='$href'>" . $label . '</a>';
 			} else {
-				$out .= $v -> $label;	
+				$out .= $label;	
 			}
 
 			if( $i < ( $count - 1 ) ) {
