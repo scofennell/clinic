@@ -12,6 +12,8 @@ class CLINIC_Calendar {
 
 	function __construct( $view, $year, $month, $week, $day ) {
 
+		wp_die( 'theres no reason the whole calendar constructor should be called on every page load.' );
+
 		$sessions = new CLINIC_Sessions();
 		$obj = $sessions -> get_post_type_object();
 		$this -> session_labels = $obj -> labels;
@@ -45,7 +47,11 @@ class CLINIC_Calendar {
 	}
 
 	function set_page() {
-		$this -> page = $_GET['page'];
+		$out = FALSE;
+		if( isset( $_GET['page'] ) ) {
+			$out = $_GET['page'];
+		}
+		$this -> page = $out;
 	}
 
 	function get_post_type() {
@@ -357,23 +363,7 @@ class CLINIC_Calendar {
 			'clinic'
 		);
 
-		wp_die( var_dump( $sessions_label ) );
-
-		if( $view == 'month' ) {
-
-			$out = sprintf( esc_html__( '%d %s', 'clinic' ), $count, $sessions_label );
-
-		} elseif( $view == 'week' ) {
-
-			$out = 'week_subtitle';
-
-			$out = $this -> get_count_for_month();
-
-		} elseif( $view == 'day' ) {
-
-			$out = 'day_subtitle';
-
-		}
+		$out = sprintf( esc_html__( '%d %s', 'clinic' ), $count, $sessions_label );
 
 		$this -> page_subtitle = $out;
 
@@ -719,9 +709,11 @@ class CLINIC_Calendar {
 
 	function get_provider_nav() {
 
-		$content = 'hello';
 		$slug = 'provider';
 		$label = esc_html__( 'Provider', 'clinic' );
+
+		$autosuggest = new CLINIC_Autocomplete( '/', '' );
+		$content = $autosuggest -> get();
 
 		$out = $this -> get_nav_control( $content, $slug, $label );
 		return $out;

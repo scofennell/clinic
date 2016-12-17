@@ -66,3 +66,98 @@ jQuery( document ).ready( function( $ ) {
 	}
 
 }( jQuery ) );
+
+/**
+ * Our jQuery plugin for doing something.
+ */
+jQuery( document ).ready( function() {
+
+	// Start an options object that we'll pass when we use our jQuery plugin.
+	var options = {};
+
+	// Apply our plugin to our table.
+	jQuery( '.CLINIC_Autocomplete-get' ).clinicAutocomplete( options );
+
+});
+
+jQuery( document ).ready( function( $ ) {
+
+	/**
+	 * Define our jQuery plugin for doing things.
+	 * 
+	 * @param  {array}  options An array of options to pass to our plugin, documented above.
+	 * @return {object} Returns the item that the plugin was applied to, making it chainable.
+	 */
+	$.fn.clinicAutocomplete = function( options ) {
+
+		// For each element to which our plugin is applied...
+		return this.each( function() {
+
+			// Save a reference to the table, so that we may safely use "this" later.
+			var that = this;
+
+			var availableTags = [
+				"ActionScript",
+				"AppleScript",
+				"Asp",
+				"BASIC",
+				"C",
+				"C++",
+				"Clojure",
+				"COBOL",
+				"ColdFusion",
+				"Erlang",
+				"Fortran",
+				"Groovy",
+				"Haskell",
+				"Java",
+				"JavaScript",
+				"Lisp",
+				"Perl",
+				"PHP",
+				"Python",
+				"Ruby",
+				"Scala",
+				"Scheme"
+			];
+			function split( val ) {
+				return val.split( /,\s*/ );
+			}
+			function extractLast( term ) {
+				return split( term ).pop();
+			}
+			$( that ).on( "keydown", function( event ) {
+				if ( event.keyCode === $.ui.keyCode.TAB && $( this ).autocomplete( "instance" ).menu.active ) {
+					event.preventDefault();
+				}
+			}).autocomplete({
+				minLength: 0,
+				source: function( request, response ) {
+					response( $.ui.autocomplete.filter( availableTags, extractLast( request.term ) ) );
+				},
+				focus: function() {
+					return false;
+				},
+				select: function( event, ui ) {
+					var terms = split( this.value );
+					// remove the current input
+					terms.pop();
+					// add the selected item
+					terms.push( ui.item.value );
+					// add placeholder to get the comma-and-space at the end
+					terms.push( "" );
+					this.value = terms.join( ", " );
+					return false;
+				}
+			});
+
+			// Make our plugin chainable.
+			return this;
+
+		// End for each element to which our plugin is applied.
+		});
+
+	// End the definition of our plugin.
+	}
+
+}( jQuery ) );
