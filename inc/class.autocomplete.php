@@ -12,7 +12,7 @@ class CLINIC_Autocomplete {
 
 	public function __construct( $selector, $source_url, $current = '' ) {
 
-		wp_die( 'next step is to extend the wp api to output some autocomplete terms' );
+		//wp_die( 'next step is to extend the wp api to output some autocomplete terms' );
 
 		$this -> enqueue();
 

@@ -42,6 +42,8 @@ abstract class CLINIC_Users {
 
 	function get_as_kv() {
 		
+		$out = array();
+
 		$args = array(
 			'role' => $this -> get_role(),
 		);
@@ -64,14 +66,18 @@ abstract class CLINIC_Users {
 
 		$array = $this -> get_as_kv();
 
-		foreach( $array as $value => $label ) {
+		if( is_array( $array ) ) {
 
-			$selected = '';
-			if( $current ) {
-				$selected = selected( $value, $current, FALSE );
+			foreach( $array as $value => $label ) {
+
+				$selected = '';
+				if( $current ) {
+					$selected = selected( $value, $current, FALSE );
+				}
+
+				$out .= "<option $selected value='$value'>$label</option>";
+
 			}
-
-			$out .= "<option $selected value='$value'>$label</option>";
 
 		}
 

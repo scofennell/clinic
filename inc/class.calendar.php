@@ -12,8 +12,6 @@ class CLINIC_Calendar {
 
 	function __construct( $view, $year, $month, $week, $day ) {
 
-		wp_die( 'theres no reason the whole calendar constructor should be called on every page load.' );
-
 		$sessions = new CLINIC_Sessions();
 		$obj = $sessions -> get_post_type_object();
 		$this -> session_labels = $obj -> labels;
@@ -47,11 +45,7 @@ class CLINIC_Calendar {
 	}
 
 	function set_page() {
-		$out = FALSE;
-		if( isset( $_GET['page'] ) ) {
-			$out = $_GET['page'];
-		}
-		$this -> page = $out;
+		$this -> page = 'calendar';
 	}
 
 	function get_post_type() {
@@ -59,7 +53,7 @@ class CLINIC_Calendar {
 	}
 
 	function set_post_type() {
-		$this -> post_type = $_GET['post_type'];
+		$this -> post_type = 'session';
 	}
 
 	function get_date_format() {

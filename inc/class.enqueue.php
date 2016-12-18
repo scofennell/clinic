@@ -36,7 +36,7 @@ class CLINIC_Script {
 		);
 
 		$meta = new CLINIC_Meta;
-		if( $meta -> get_is_settings_page() ) {
+		if( $meta -> get_is_calendar_page() ) {
 			wp_enqueue_script( CLINIC . '-script' );
 		}
 
@@ -52,7 +52,7 @@ class CLINIC_Script {
 		);
 
 		$meta = new CLINIC_Meta;
-		if( $meta -> get_is_settings_page() ) {
+		if( $meta -> get_is_calendar_page() ) {
 			wp_enqueue_style( CLINIC . '-style' );
 		}	
 		

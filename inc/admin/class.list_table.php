@@ -19,6 +19,8 @@ class CLINIC_List_Table {
 
 	function __construct() {
 
+		$this -> meta = new CLINIC_Meta;
+
 		$this -> set_provider_id();
 		$this -> set_client_id();		
 		$this -> set_start();
@@ -32,9 +34,6 @@ class CLINIC_List_Table {
 
     	add_filter('bulk_actions-session', array( $this, 'remove_quick_edit' ) );
 
-		$screen = get_current_screen();
-		$this -> post_type = $screen -> post_type;
-		$this -> base = $screen -> base;
 
 	}
 
@@ -104,7 +103,8 @@ class CLINIC_List_Table {
 
 	function remove_date_drop() {
 
-		if ( $this -> post_type != 'session' ) { return FALSE; }
+		if( ! $this -> meta -> get_is_archive_session_admin() ) { return FALSE; }
+
 
     	add_filter( 'months_dropdown_results', array( $this, 'months_dropdown_results' ) );
 
@@ -112,7 +112,7 @@ class CLINIC_List_Table {
 
 	function months_dropdown_results( $in ) {
 
-		if ( $this -> post_type != 'session' ) { return $in; }
+		if( ! $this -> meta -> get_is_archive_session_admin() ) { return $in; }
 
 		return array();
 
@@ -121,7 +121,7 @@ class CLINIC_List_Table {
 
 	function restrict_manage_posts() {
 
-		if ( $this -> post_type != 'session' ) { return FALSE; }
+		if( ! $this -> meta -> get_is_archive_session_admin() ) { return FALSE; }
 
 		$out = '';
 
@@ -150,9 +150,7 @@ class CLINIC_List_Table {
 
 	function posts_filter( $query ) {
 
-		if( ! is_admin() ) { return $query; }
-		if ( $this -> post_type != 'session' ) { return $query; }
-		if ( $this -> base != 'edit' ) { return $query; }
+		if( ! $this -> meta -> get_is_archive_session_admin() ) { return $query; }
 
 		$query -> query_vars['meta_query'] = array();
 

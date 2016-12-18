@@ -25,6 +25,22 @@ class CLINIC_Sub_Menus {
 
 	function session() {
 
+		add_submenu_page(
+			'edit.php?post_type=session',
+			FALSE,
+			esc_html__( 'Calendar', 'clinic' ),
+			'edit_posts',
+			'calendar',
+			array( $this, 'the_calendar_page' )
+		);
+
+	}
+
+	function the_calendar_page() {
+
+		$meta = new CLINIC_Meta;
+		if( ! $meta -> get_is_calendar_page() ) { return FALSE; }
+
 		$view = FALSE;
 		if( isset( $_GET['view'] ) ) {
 			$view = sanitize_text_field( $_GET['view'] );
@@ -51,15 +67,8 @@ class CLINIC_Sub_Menus {
 		}								
 
 		$calendar = new CLINIC_Calendar( $view, $year, $month, $week, $day );
-
-		add_submenu_page(
-			'edit.php?post_type=session',
-			$calendar -> get_page_title(),
-			esc_html__( 'Calendar', 'clinic' ),
-			'edit_posts',
-			'calendar',
-			array( $calendar, 'the_page' )
-		);
+	
+		$calendar -> the_page();
 
 	}
 
