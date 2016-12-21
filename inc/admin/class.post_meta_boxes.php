@@ -334,20 +334,6 @@ class CLINIC_Post_Meta_Boxes {
 
 				$old_value = $post -> get_meta( $input_slug, FALSE );
 
-				/*wp_die(
-					var_dump(
-						array(
-							$post_id,
-							$meta_box_slug,
-							$new_value,
-							$old_value,
-							$inputs,
-							$_POST,
-							#$update,
-						)
-					)
-				);*/
-
 				foreach( $new_value as $val ) {
 
 					if( ! in_array( $val, $old_value ) ) {

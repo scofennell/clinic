@@ -10,15 +10,15 @@
 
 class CLINIC_Autocomplete {
 
-	public function __construct( $selector, $source_url, $current = '' ) {
-
-		//wp_die( 'next step is to extend the wp api to output some autocomplete terms' );
+	public function __construct( $object_type, $current = '' ) {
 
 		$this -> enqueue();
 
-		$this -> current    = esc_attr( $current );
+		$this -> localize();
 
-		$this -> source_url = esc_url( $source_url );
+		$this -> current     = esc_attr( $current );
+
+		$this -> object_type = sanitize_key( $object_type );
 
 	}
 
@@ -28,14 +28,27 @@ class CLINIC_Autocomplete {
 
 	}
 
+	function localize() {
+
+		$source = get_rest_url( NULL, 'clinic/v1/autocomplete/' );
+
+		$data = array(
+			'source' => $source,
+		);
+
+		wp_localize_script( CLINIC . '-script', __CLASS__, $data );
+
+	}
+
 	function get() {
 
 		$class = __CLASS__ . '-' . __FUNCTION__;
 
 		$current = $this -> current;
+		$object_type = $this -> object_type;
 
 		$out = "
-			<input type='text' value='$current' class='$class'>
+			<input data-object_type='$object_type' type='text' value='$current' class='$class'>
 		";
 
 		return $out;

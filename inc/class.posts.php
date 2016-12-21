@@ -43,8 +43,6 @@ abstract class CLINIC_Posts {
 
 		$out = get_post_type_object( $this -> get_post_type() );
 
-		//wp_die( var_dump( get_post_type_object( 'sessions' ) ) );
-
 		$this -> post_type_object = $out;
 
 	}
@@ -371,17 +369,6 @@ abstract class CLINIC_Posts {
 		}
 
 		$out = new WP_Query( $args );
-
-		/*if( $this -> day == 20 ) {
-			wp_die(
-				var_dump(
-
-					$args,
-					$out
-
-				)
-			);
-		}*/
 
 		return $out;
 

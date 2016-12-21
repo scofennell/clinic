@@ -96,58 +96,88 @@ jQuery( document ).ready( function( $ ) {
 			// Save a reference to the table, so that we may safely use "this" later.
 			var that = this;
 
-			var availableTags = [
-				"ActionScript",
-				"AppleScript",
-				"Asp",
-				"BASIC",
-				"C",
-				"C++",
-				"Clojure",
-				"COBOL",
-				"ColdFusion",
-				"Erlang",
-				"Fortran",
-				"Groovy",
-				"Haskell",
-				"Java",
-				"JavaScript",
-				"Lisp",
-				"Perl",
-				"PHP",
-				"Python",
-				"Ruby",
-				"Scala",
-				"Scheme"
-			];
+			var objectType = $( that ).data( 'object_type' );
+
+			var source = CLINIC_Autocomplete.source + objectType;
+
+			/**
+			 * Convert a comma-sep list into an array.
+			 * 
+			 * @param  val A string with comma-sep values.
+			 * @return array
+			 */
 			function split( val ) {
 				return val.split( /,\s*/ );
 			}
+			
+			/**
+			 * Grab the last item in a comma-sep list.
+			 * 
+			 * @param  term A string with comma-sep values.
+			 * @return string
+			 */
 			function extractLast( term ) {
 				return split( term ).pop();
-			}
-			$( that ).on( "keydown", function( event ) {
-				if ( event.keyCode === $.ui.keyCode.TAB && $( this ).autocomplete( "instance" ).menu.active ) {
+			} 
+
+			// Select the autosuggest input.
+			$( that )
+
+			// Don't navigate away from the field on tab when selecting an item.
+			.bind( 'keydown', function( event ) {
+
+				console.log( 'keydown' );
+
+				if ( event.keyCode === jQuery.ui.keyCode.TAB && jQuery( this ).autocomplete( 'instance' ).menu.active ) {
 					event.preventDefault();
 				}
-			}).autocomplete({
+			})
+			
+			.autocomplete({
+				
 				minLength: 0,
+				
 				source: function( request, response ) {
-					response( $.ui.autocomplete.filter( availableTags, extractLast( request.term ) ) );
+					
+					// delegate back to autocomplete, but extract the last term
+					response(
+						jQuery.ui.autocomplete.filter(
+							source, extractLast( request.term )
+						)
+					);
+
 				},
+				
 				focus: function() {
+
+					console.log( 'focus' );
+
+					// prevent value inserted on focus
 					return false;
+			
 				},
+				
 				select: function( event, ui ) {
+					
+					console.log( 'select' );
+
 					var terms = split( this.value );
+					
 					// remove the current input
 					terms.pop();
+					
 					// add the selected item
-					terms.push( ui.item.value );
+					if( ! ( jQuery.inArray( ui.item.value, terms ) > -1 ) ) {
+						terms.push( ui.item.value );
+					}
+
 					// add placeholder to get the comma-and-space at the end
-					terms.push( "" );
-					this.value = terms.join( ", " );
+					terms.push( '' );
+
+					this.value = terms.join( ', ' );
+
 					return false;
+
 				}
 			});
 

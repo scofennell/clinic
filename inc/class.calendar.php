@@ -706,7 +706,7 @@ class CLINIC_Calendar {
 		$slug = 'provider';
 		$label = esc_html__( 'Provider', 'clinic' );
 
-		$autosuggest = new CLINIC_Autocomplete( '/', '' );
+		$autosuggest = new CLINIC_Autocomplete( $slug, '' );
 		$content = $autosuggest -> get();
 
 		$out = $this -> get_nav_control( $content, $slug, $label );

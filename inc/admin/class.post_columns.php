@@ -47,6 +47,7 @@ class CLINIC_Post_Columns {
 		if( $orderby == 'menu_order title' ) {
 			$query->set( 'meta_key', CLINIC . '-start' );
             $query->set( 'orderby',  'meta_value_num' );
+            $query->set( 'order',  'DESC' );
 		}
 
 	}
