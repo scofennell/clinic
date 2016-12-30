@@ -45,8 +45,6 @@ jQuery( document ).ready( function( $ ) {
 			var showsHides = $( that ).find( '.clinic-shows_hides' );
 			var shownHidden = $( that ).find( '.clinic-shown_hidden' );
 
-			console.log( shownHidden );
-
 			$( showsHides ).on( 'click', function( event ) {
 				event.preventDefault();
 
@@ -100,86 +98,55 @@ jQuery( document ).ready( function( $ ) {
 
 			var source = CLINIC_Autocomplete.source + objectType;
 
-			/**
-			 * Convert a comma-sep list into an array.
-			 * 
-			 * @param  val A string with comma-sep values.
-			 * @return array
-			 */
+			$( function() {
+
 			function split( val ) {
 				return val.split( /,\s*/ );
 			}
-			
-			/**
-			 * Grab the last item in a comma-sep list.
-			 * 
-			 * @param  term A string with comma-sep values.
-			 * @return string
-			 */
+
 			function extractLast( term ) {
 				return split( term ).pop();
-			} 
+			}
 
-			// Select the autosuggest input.
 			$( that )
-
-			// Don't navigate away from the field on tab when selecting an item.
-			.bind( 'keydown', function( event ) {
-
-				console.log( 'keydown' );
-
-				if ( event.keyCode === jQuery.ui.keyCode.TAB && jQuery( this ).autocomplete( 'instance' ).menu.active ) {
-					event.preventDefault();
-				}
+			// don't navigate away from the field on tab when selecting an item
+			.on( "keydown", function( event ) {
+			if ( event.keyCode === $.ui.keyCode.TAB &&
+			$( this ).autocomplete( "instance" ).menu.active ) {
+			event.preventDefault();
+			}
 			})
-			
 			.autocomplete({
-				
-				minLength: 0,
-				
-				source: function( request, response ) {
-					
-					// delegate back to autocomplete, but extract the last term
-					response(
-						jQuery.ui.autocomplete.filter(
-							source, extractLast( request.term )
-						)
-					);
-
-				},
-				
-				focus: function() {
-
-					console.log( 'focus' );
-
-					// prevent value inserted on focus
-					return false;
-			
-				},
-				
-				select: function( event, ui ) {
-					
-					console.log( 'select' );
-
-					var terms = split( this.value );
-					
-					// remove the current input
-					terms.pop();
-					
-					// add the selected item
-					if( ! ( jQuery.inArray( ui.item.value, terms ) > -1 ) ) {
-						terms.push( ui.item.value );
-					}
-
-					// add placeholder to get the comma-and-space at the end
-					terms.push( '' );
-
-					this.value = terms.join( ', ' );
-
-					return false;
-
-				}
+			source: function( request, response ) {
+			$.getJSON( source, {
+			term: extractLast( request.term )
+			}, response );
+			},
+			search: function() {
+			// custom minLength
+			var term = extractLast( this.value );
+			if ( term.length < 2 ) {
+			return false;
+			}
+			},
+			focus: function() {
+			// prevent value inserted on focus
+			return false;
+			},
+			select: function( event, ui ) {
+			var terms = split( this.value );
+			// remove the current input
+			terms.pop();
+			// add the selected item
+			terms.push( ui.item.value );
+			// add placeholder to get the comma-and-space at the end
+			terms.push( "" );
+			this.value = terms.join( ", " );
+			return false;
+			}
 			});
+
+			});			
 
 			// Make our plugin chainable.
 			return this;

@@ -73,7 +73,7 @@ class CLINIC_Api {
 
 			$args = array(
 				'role'   => $object_type,
-				'search' => $term,
+				'search' => '*' . $term . '*',
 			);
 
 			$query = new WP_User_Query( $args );
@@ -95,7 +95,7 @@ class CLINIC_Api {
 
 		}
 
-		$out = json_encode( $out );
+		$out = $out;
 
 		return $out;
 	
