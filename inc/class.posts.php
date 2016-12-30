@@ -17,6 +17,8 @@ abstract class CLINIC_Posts {
 		$this -> set_args( $args );
 		$this -> set_posts_per_page();
 		
+		$this -> set_provider();
+
 		$this -> set_start_year();
 		$this -> set_start_month();
 		$this -> set_start_day();
@@ -60,6 +62,23 @@ abstract class CLINIC_Posts {
 	function set_args( $args ) {
 
 		$this -> args = $args;
+
+	}
+
+	function get_provider() {
+
+		return $this -> provider;
+
+	}
+
+	function set_provider() {
+
+		if( isset( $this -> args['provider'] ) ) {
+			$this -> provider = array_map( 'sanitize_key', $this -> args['provider'] );
+		} else {
+			$this -> provider = array();
+		}
+
 
 	}
 
@@ -365,6 +384,27 @@ abstract class CLINIC_Posts {
 					'compare' => '>',
 				),
 			);
+
+			$provider_count = count( $this -> get_provider() );
+
+			wp_die( 'client and provider names are not showing in calendar cells.  once they are it will be easier to determine if the below query is working.' );
+
+			if( ! empty( $provider_count ) ) {
+
+		
+				$provider_query = array(
+					'relation' => 'AND'
+				);
+
+				foreach( $this -> get_provider() as $provider_id ) {
+					$provider_query[] = array(
+						'key'     => CLINIC . '-' . 'provider_ids',
+						'value'   => $provider_id,
+						'compare' => 'IN',
+					);
+				}
+
+			}
 
 		}
 

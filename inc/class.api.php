@@ -30,6 +30,11 @@ class CLINIC_Api {
 							return is_scalar( $param );
 						}
 					),
+					'current' => array(
+						'validate_callback' => function( $param, $request, $key ) {
+							return is_scalar( $param );
+						}
+					),
 					'object_type' => array(
 						'validate_callback' => function( $param, $request, $key ) {
 							return is_scalar( $param );
@@ -43,6 +48,7 @@ class CLINIC_Api {
 	function my_awesome_func( WP_REST_Request $request ) {
 		
 		$term        = $request['term'];
+		$current     = explode( ',', $request['current'] );
 		$object_type = $request['object_type'];
 
 		$out = NULL;
@@ -70,10 +76,13 @@ class CLINIC_Api {
 			}
 
 		} elseif( is_object( get_role( $object_type ) ) ) {
+			
+			$exclude = array();
 
 			$args = array(
-				'role'   => $object_type,
-				'search' => '*' . $term . '*',
+				'role'    => $object_type,
+				'search'  => '*' . $term . '*',
+				'exclude' => $exclude,
 			);
 
 			$query = new WP_User_Query( $args );
@@ -83,10 +92,15 @@ class CLINIC_Api {
 				$out = array();
 				foreach ( $query -> results as $user ) {
 
+					$login        = $user -> user_login;
+					$display_name = $user -> display_name;
+
+					$label = sprintf( esc_html__( '%s (%s)', 'clinic' ), $login, $display_name );
+
 					$out[] = array(
 						'id'    => $user -> ID,
-						'label' => $user -> display_name,
-						'value' => $user -> display_name,					
+						'label' => $label,
+						'value' => $login,					
 					);
 				}
 

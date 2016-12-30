@@ -10,7 +10,7 @@
 
 class CLINIC_Calendar {
 
-	function __construct( $view, $year, $month, $week, $day ) {
+	function __construct( $view, $year, $month, $week, $day, $provider ) {
 
 		$sessions = new CLINIC_Sessions();
 		$obj = $sessions -> get_post_type_object();
@@ -20,6 +20,9 @@ class CLINIC_Calendar {
 		$this -> set_post_type();		
 
 		$date_format = $this -> set_date_format();
+
+		$this -> set_provider( $provider );
+		$this -> set_provider_ids();
 
 		$this -> set_week_begins();
 		$this -> set_view( $view );
@@ -81,6 +84,37 @@ class CLINIC_Calendar {
 		return $this -> week_begins;
 
 	}
+
+	function set_provider( $provider ) {
+
+		$provider = array_map( 'sanitize_key', $provider );
+		$this -> provider = $provider;
+
+	}
+
+	function get_provider() {
+		return $this -> provider;
+	}
+
+	function set_provider_ids() {
+
+		$out = array();
+
+		$provider = $this -> get_provider();
+
+		foreach( $provider as $user_login ) {
+			$user = get_user_by( 'login', $user_login );
+			if( ! $user ) { continue; }
+			$out[]= absint( $user -> ID );
+		}
+
+		$this -> provider_ids = $out;
+
+	}
+
+	function get_provider_ids() {
+		return $this -> provider_ids;
+	}	
 
 	function set_view( $view ) {
 
@@ -755,6 +789,8 @@ class CLINIC_Calendar {
 		if( empty( $month ) ) { $month = $this -> month; }
 		if( empty( $day ) )   { $day   = $this -> day; }
 
+		$provider = $this -> get_provider();
+
 		$posts_per_page = 5;
 
 		$args = array(
@@ -762,6 +798,7 @@ class CLINIC_Calendar {
 			'month'          => $month,
 			'year'           => $year,
 			'posts_per_page' => $posts_per_page,
+			'provider'       => $this -> get_provider_ids(),  
 		);
 		$sessions = new CLINIC_Sessions( $args );
 

@@ -64,9 +64,18 @@ class CLINIC_Sub_Menus {
 		$day = FALSE;
 		if( isset( $_GET['day'] ) ) {
 			$day = absint( $_GET['day'] );
-		}								
+		}	
 
-		$calendar = new CLINIC_Calendar( $view, $year, $month, $week, $day );
+		$provider = array();
+		if( isset( $_GET['provider'] ) ) {
+
+			$provider = explode( ',', $_GET['provider'] );
+
+			$provider = array_map( 'sanitize_key', $provider );
+
+		}										
+
+		$calendar = new CLINIC_Calendar( $view, $year, $month, $week, $day, $provider );
 	
 		$calendar -> the_page();
 

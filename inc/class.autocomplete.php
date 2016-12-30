@@ -48,7 +48,7 @@ class CLINIC_Autocomplete {
 		$object_type = $this -> object_type;
 
 		$out = "
-			<input data-object_type='$object_type' type='text' value='$current' class='$class'>
+			<input id='$object_type' name='$object_type' data-object_type='$object_type' type='text' value='$current' class='$class'>
 		";
 
 		return $out;
